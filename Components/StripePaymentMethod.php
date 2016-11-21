@@ -1,8 +1,13 @@
 <?php
 namespace Shopware\Plugins\StripePayment\Components;
 
+use Shopware\Models\Order\Order;
+use Shopware\Models\Order\Status;
 use ShopwarePlugin\PaymentMethods\Components\GenericPaymentMethod;
 use Shopware\Plugins\StripePayment\Util;
+use Stripe\Charge;
+use Stripe\Error\Base;
+use Stripe\Error\Card;
 
 /**
  * A simplified payment method instance that is only used to validate the Stripe payment
@@ -56,6 +61,150 @@ abstract class BaseStripePaymentMethod extends GenericPaymentMethod
         );
     }
 
+
+    /**
+     * Captures the payment for a given order that was reserved (auth'd)
+     *
+     * @param Order $order
+     * @return Order
+     */
+    public function captureOrder(Order $order) {
+        $paymentMethod = $order->getPayment();
+        $transactionId = $order->getTransactionId();
+        if (empty($transactionId)
+            ||$paymentMethod->getName() !== 'stripe_payment'
+            || $order->getPaymentStatus()->getId() !== Status::PAYMENT_STATE_RESERVED
+        ) {
+            // nothing to do
+            return $order;
+        }
+
+        $amount = $order->getInvoiceAmount();
+        $errorMessage = '';
+        $ok = false;
+        try {
+            Util::initStripeAPI();
+            $charge = Charge::retrieve($order->getTransactionId());
+            $charge->capture(array(
+                'amount' => intval($amount * 100)
+            ));
+            $ok = $charge->captured;
+        } catch (Base $e) {
+            $errorMessage = 'Error: ';
+            // Try to get the error response
+            if ($e->getJsonBody() !== null) {
+                $body = $e->getJsonBody();
+                $errorMessage .= $body['error']['message'] . "\n";
+            } else {
+                $errorMessage .= $e->getMessage() . "\n";
+            }
+        }
+
+        $date = date('d.m.Y, G:i:s');
+        $amountFormatted = number_format($amount, 2, ',', '.');
+
+        $tranMsg = '';
+        if (isset($charge) && $charge->captured) {
+            // Remember the balance transaction hash
+            $tranMsg = "Transaction: {$charge->balance_transaction}\n";
+        }
+
+        // Add a new refund comment to the internal comment of the order
+        $internalComment = $order->getInternalComment()
+            . "\n--------------------------------------------------------------\n"
+            . "Stripe Capture ($date)\n"
+            . "Amount: $amountFormatted {$order->getCurrency()}\n"
+            . $errorMessage
+            . $tranMsg
+            . "--------------------------------------------------------------\n";
+        $order->setInternalComment($internalComment);
+        if (isset($charge) && $charge->captured) {
+            // Set the date to now
+            $order->setClearedDate(new \DateTime());
+        }
+        Shopware()->Models()->flush($order);
+
+        if ($ok) {
+            $sOrder = Shopware()->Modules()->Order();
+            $sOrder->setPaymentStatus($order->getId(), Status::PAYMENT_STATE_COMPLETELY_PAID, false, "Captured: $amountFormatted");
+        }
+
+        return $order;
+    }
+
+    /**
+     * Refunds the charge for the amount of the order.
+     *
+     * @param Order $order
+     * @return Order
+     */
+    public function refundOrder(Order $order) {
+        $paymentMethod = $order->getPayment();
+        $transactionId = $order->getTransactionId();
+        if (empty($transactionId)
+            ||$paymentMethod->getName() !== 'stripe_payment'
+            || !in_array($order->getPaymentStatus()->getId(), [
+                    Status::PAYMENT_STATE_OPEN, Status::PAYMENT_STATE_RESERVED, Status::PAYMENT_STATE_COMPLETELY_PAID
+                ])
+        ) {
+            // nothing to do
+            return $order;
+        }
+
+        $amount = $order->getInvoiceAmount();
+
+        $errorMessage = '';
+        $ok = false;
+        $state = 'Error';
+        try {
+            Util::initStripeAPI();
+            $charge = Charge::retrieve($order->getTransactionId());
+            $state = $charge->captured ? 'Refund' : 'Release';
+            $refundAmount = $charge->amount - $charge->amount_refunded;
+
+            if (empty($refundAmount)) {
+                // nothing to do.
+                return $order;
+            }
+
+            $refund = $charge->refund(['amount' => $refundAmount]);
+
+            $ok = $refund->amount_refunded === $refundAmount;
+        } catch (Base $e) {
+            $errorMessage = 'Error: ';
+            // Try to get the error response
+            if ($e->getJsonBody() !== null) {
+                $body = $e->getJsonBody();
+                $errorMessage .= $body['error']['message'] . "\n";
+            } else {
+                $errorMessage .= $e->getMessage() . "\n";
+            }
+        }
+
+        $date = date('d.m.Y, G:i:s');
+        $amountFormatted = number_format($amount, 2, ',', '.');
+
+        // Add a new refund comment to the internal comment of the order
+        $internalComment = $order->getInternalComment()
+            . "\n--------------------------------------------------------------\n"
+            . "Stripe $state ($date)\n"
+            . "Amount: $amountFormatted {$order->getCurrency()}\n"
+            . $errorMessage
+            . "--------------------------------------------------------------\n";
+        $order->setInternalComment($internalComment);
+        if (isset($refund) && $refund->amount_refunded) {
+            // Set the date to now
+            $order->setClearedDate(null);
+        }
+        Shopware()->Models()->flush($order);
+
+        if ($ok) {
+            $sOrder = Shopware()->Modules()->Order();
+            $sOrder->setPaymentStatus($order->getId(), Status::PAYMENT_STATE_RE_CREDITING, false, "$state: $amountFormatted");
+        }
+
+        return $order;
+    }
 }
 
 /**

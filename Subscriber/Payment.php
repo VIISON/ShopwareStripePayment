@@ -2,6 +2,8 @@
 namespace Shopware\Plugins\StripePayment\Subscriber;
 
 use Enlight\Event\SubscriberInterface;
+use Shopware\Models\Order\Order;
+use Shopware\Plugins\StripePayment\Components\StripePaymentMethod;
 
 /**
  * The subscriber for adding the custom StripePaymentMethod path.
@@ -15,9 +17,10 @@ class Payment implements SubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            'Shopware_Modules_Admin_InitiatePaymentClass_AddClass' => 'onAddPaymentClass'
-        );
+        return [
+            'Shopware_Modules_Admin_InitiatePaymentClass_AddClass' => 'onAddPaymentClass',
+            'StripePayment_Capture_Order'                          => 'onCaptureOrder',
+        ];
     }
 
     /**
@@ -33,5 +36,14 @@ class Payment implements SubscriberInterface
             $dirs['StripePaymentMethod'] = 'Shopware\Plugins\StripePayment\Components\StripePaymentMethod';
             $args->setReturn($dirs);
         }
+    }
+
+    public function onCaptureOrder(\Enlight_Event_EventArgs $args)
+    {
+        /** @var Order $order */
+        $order = $args->getReturn();
+        $stripePaymentMethod = new StripePaymentMethod();
+        $result = $stripePaymentMethod->captureOrder($order);
+        $args->setReturn($result);
     }
 }

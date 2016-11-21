@@ -233,4 +233,9 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
 
         return $pluginJSON;
     }
+
+    public function getStripePaymentMethod()
+    {
+        return new \Shopware\Plugins\StripePayment\Components\StripePaymentMethod();
+    }
 }

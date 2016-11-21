@@ -1,5 +1,6 @@
 <?php
 use Shopware\Plugins\StripePayment\Util;
+use Shopware\Models\Order\Status;
 
 /**
  * The controller handling the main payment process using the stripe API.
@@ -49,7 +50,14 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         // balance_transaction is displayed in the shop owner's Stripe account, so it can
         // be used to easily identify an order.
         $paymentUniqueId = $charge->balance_transaction;
-        $orderNumber = $this->saveOrder($charge->id, $paymentUniqueId, 12); // transactionId, paymentUniqueId, [paymentStatusId, [sendStatusMail]]
+        $paymentStatus = Status::PAYMENT_STATE_COMPLETELY_PAID;
+        // For cases where capture is false, balance_transaction will be empty because the money has not been moved.
+        // That will happen later with the actual capture.  For now, just use the $charge->id
+        if (empty($paymentUniqueId) && ! $this->isCapture()) {
+            $paymentUniqueId = $charge->id;
+            $paymentStatus = Status::PAYMENT_STATE_RESERVED;
+        }
+        $orderNumber = $this->saveOrder($charge->id, $paymentUniqueId, $paymentStatus); // transactionId, paymentUniqueId, [paymentStatusId, [sendStatusMail]]
         if ($orderNumber) {
             try {
                 // Save the order number in the description of the charge
@@ -61,6 +69,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
             }
 
             // Try to update the cleared date
+            /** @var \Shopware\Models\Order\Order $order */
             $order = $this->get('models')->getRepository('Shopware\Models\Order\Order')->findOneBy(array(
                 'number' => $orderNumber
             ));
@@ -112,8 +121,8 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
      * active session. If the a Stripe card id is found, it is used to retrieve the
      * corresponding Stripe customer instance.
      *
-     * @return An array containing the charge data.
-     * @throws An exception, if the found Stripe credit card was not found or neither a payment token, nor a card id was found.
+     * @return array - An array containing the charge data.
+     * @throws Exception - An exception, if the found Stripe credit card was not found or neither a payment token, nor a card id was found.
      */
     public function getChargeData()
     {
@@ -133,7 +142,8 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
             'description' => ($userEmail . ' / Kunden-Nr.: ' . $customerNumber),
             'metadata' => array(
                 'platform_name' => self::STRIPE_PLATFORM_NAME
-            )
+            ),
+            'capture' => $this->isCapture(),
         );
 
         if (Shopware()->Session()->stripeTransactionToken !== null) {
@@ -157,5 +167,14 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         }
 
         return $chargeData;
+    }
+
+
+    /**
+     * @return boolean - default true - meaning the charge should be captured.  False means reserve the payment, but do not capture.
+     */
+    public function isCapture() {
+        // Default to true
+        return Shopware()->Session()->get('stripeCapture', true);
     }
 }
