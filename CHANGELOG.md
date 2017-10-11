@@ -1,3 +1,13 @@
+## Next release
+
+### en
+
+* Fixes a display error at the Login page under Shopware 5.3.
+
+### de
+
+* Behebt einen Darstellungfehler beim Login unter Shopware 5.3.
+
 ## 2.2.0
 
 ### en

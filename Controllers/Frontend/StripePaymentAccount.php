@@ -14,13 +14,12 @@ class Shopware_Controllers_Frontend_StripePaymentAccount extends Shopware_Contro
      */
     public function preDispatch()
     {
-        parent::preDispatch();
-
         // Check if user is logged in
         if (!$this->admin->sCheckUser()) {
             unset($this->View()->sUserData);
-            return $this->forward('login', 'Account');
+            return $this->forward('login', 'account');
         }
+        parent::preDispatch();
     }
 
     /**
