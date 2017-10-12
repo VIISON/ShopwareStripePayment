@@ -2,11 +2,12 @@
 
 ### en
 
-* Fixes a display error at the Login page under Shopware 5.3.
+* Fixes a display error in the login when using Shopware 5.3.
 
 ### de
 
-* Behebt einen Darstellungfehler beim Login unter Shopware 5.3.
+* Behebt einen Darstellungsfehler im Login unter Shopware 5.3.
+
 
 ## 2.2.0
 
