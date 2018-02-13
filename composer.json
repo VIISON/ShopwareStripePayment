@@ -30,5 +30,13 @@
         "phpcs": "vendor/bin/phpcs -s -n .",
         "phpcs:fix": "vendor/bin/phpcbf -s -n .",
         "phplint": "echo \"Linting all PHP files...\"; LINT_RETURN=0; for FILE in $(find . -regex \".*\\.php\" -not -path \"./vendor/*\"); do if ! php -l \"$FILE\"; then LINT_RETURN=1; fi; done; exit $LINT_RETURN;"
+    },
+    "autoload": {
+        "psr-4": {
+            "Shopware\\Plugins\\StripePayment\\": "."
+        },
+        "exclude-from-classmap": [
+            "Polyfill"
+        ]
     }
 }
