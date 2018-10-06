@@ -1,4 +1,6 @@
-{block name="frontend_index_header_javascript" append}
+{block name="frontend_index_header_javascript"}
+    {$smarty.block.parent}
+
     {if $sUserData.additional.payment.class == "StripePaymentApplePay"}
         {* Include and set up the Stripe SDK *}
         <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
@@ -10,14 +12,18 @@
     {/if}
 {/block}
 
-{block name="frontend_index_header_css_screen" append}
+{block name="frontend_index_header_css_screen"}
+    {$smarty.block.parent}
+
     <style type="text/css">
         {* Include shared CSS for payment provider logo SVGs *}
         {include file="frontend/stripe_payment/_resources/styles/stripe_payment_provider_logos.css"}
     </style>
 {/block}
 
-{block name="frontend_index_content_top" append}
+{block name="frontend_index_content_top"}
+    {$smarty.block.parent}
+
     {if $stripePayment.error}
         <div class="grid_20 first">
             <div class="error">

@@ -1,6 +1,8 @@
 {extends file="parent:frontend/index/index.tpl"}
 
-{block name="frontend_index_header_javascript" append}
+{block name="frontend_index_header_javascript"}
+    {$smarty.block.parent}
+
     <script type="text/javascript">
         if (typeof document.asyncReady === 'function') {
             // Shopware >= 5.3, hence wait for async JavaScript first
@@ -18,7 +20,7 @@
     </script>
 {/block}
 
-{block name="frontend_index_javascript_async_ready" prepend}
+{block name="frontend_index_javascript_async_ready"}
     {* This block is only loaded in Shopware >= 5.3 *}
     <script type="text/javascript">
         (function () {
@@ -40,4 +42,6 @@
             }
         })();
     </script>
+
+    {$smarty.block.parent}
 {/block}

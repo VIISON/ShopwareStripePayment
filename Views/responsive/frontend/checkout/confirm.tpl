@@ -1,6 +1,8 @@
 {extends file="parent:frontend/checkout/confirm.tpl"}
 
-{block name="frontend_checkout_confirm_error_messages" append}
+{block name="frontend_checkout_confirm_error_messages"}
+    {$smarty.block.parent}
+
     {include file="frontend/checkout/stripe_payment_error.tpl"}
 
     {if $sUserData.additional.payment.class == "StripePaymentApplePay"}
@@ -14,7 +16,9 @@
     {/if}
 {/block}
 
-{block name="frontend_index_header_javascript_jquery" append}
+{block name="frontend_index_header_javascript_jquery"}
+    {$smarty.block.parent}
+
     {if ($sUserData.additional.payment.class == "StripePaymentCard" && $stripePayment.selectedCard) || ($sUserData.additional.payment.class == "StripePaymentSepa" && $stripePayment.sepaSource)}
         <script type="text/javascript">
             document.stripeJQueryReady(function() {

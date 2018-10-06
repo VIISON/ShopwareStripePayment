@@ -3,7 +3,9 @@
 {namespace name='frontend/plugins/stripe_payment/account'}
 
 {* Breadcrumb *}
-{block name="frontend_index_start" append}
+{block name="frontend_index_start"}
+    {$smarty.block.parent}
+
     {$sBreadcrumb[] = ["name" => "{s name='credit_cards/title'}{/s}", "link" => {url}]}
 {/block}
 
