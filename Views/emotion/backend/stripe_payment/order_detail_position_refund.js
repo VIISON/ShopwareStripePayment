@@ -8,6 +8,7 @@
 
 //{block name="backend/order/view/detail/position"}
     //{$smarty.block.parent}
+
 Ext.define('Shopware.apps.StripePayment.Order.view.detail.Position', {
 
     override: 'Shopware.apps.Order.view.detail.Position',
@@ -80,6 +81,7 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.Position', {
 
 //{block name="backend/order/controller/detail"}
     //{$smarty.block.parent}
+
     // Include the refund model and window
     //{include file="backend/stripe_payment/order_detail_position_refund/item.js"}
     //{include file="backend/stripe_payment/order_detail_position_refund/window.js"}
