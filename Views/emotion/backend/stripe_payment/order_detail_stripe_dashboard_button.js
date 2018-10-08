@@ -10,6 +10,7 @@
  */
 //{block name="backend/order/view/detail/overview"}
     //{$smarty.block.parent}
+
 Ext.define('Shopware.apps.StripePayment.Order.view.detail.Overview.StripeDashboardButton', {
 
     override: 'Shopware.apps.Order.view.detail.Overview',
