@@ -49,7 +49,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         // Create a source using the selected Stripe payment method
         try {
             $source = $this->getStripePaymentMethod()->createStripeSource(
-                ($this->getAmount() * 100), // Amount has to be in cents!
+                $this->getAmountInCents(),
                 $this->getCurrencyShortName()
             );
         } catch (Exception $e) {
@@ -231,7 +231,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         // Prepare the charge data
         $chargeData = [
             'source' => $source->id,
-            'amount' => ($this->getAmount() * 100), // Amount has to be in cents!
+            'amount' => $this->getAmountInCents(),
             'currency' => $this->getCurrencyShortName(),
             'description' => sprintf('%s / Customer %s', $userEmail, $customerNumber),
             'metadata' => [
@@ -255,6 +255,14 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         }
 
         return Stripe\Charge::create($chargeData);
+    }
+
+    /**
+     * @return int
+     */
+    protected function getAmountInCents()
+    {
+        return round($this->getAmount() * 100);
     }
 
     /**
