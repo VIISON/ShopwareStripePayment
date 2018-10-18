@@ -1,3 +1,16 @@
+## 3.2.0
+
+### en
+
+* The menu item "Manage credit cards" in the customer account is no longer displayed, if the configuration option _Show "Show credit card"_ is disabled.
+* Fixes an error that migth have caused the payment to be aborted, because the used basket amount was invalid.
+
+### de
+
+* Der Menüpunkt "Kreditkarten verwalten" im Kundenkonto wird nun nicht mehr angezeigt, wenn die Konfigurationsoption _"Kreditkarte speichern" anzeigen_ deaktiviert ist.
+* Behebt einen Fehler, der unter Umständen dazu führte, dass Zahlungen abgebrochen wurden, weil der verwendete Betrag des Warenkorbs ungültig war.
+
+
 ## 3.1.3
 
 ### en
