@@ -46,6 +46,17 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getCapabilities()
+    {
+        $capabilities = parent::getCapabilities();
+        $capabilities['secureUninstall'] = true;
+
+        return $capabilities;
+    }
+
+    /**
      * Default install method, which installs the plugin and its events.
      *
      * @return True if installation was successful, otherwise false.
