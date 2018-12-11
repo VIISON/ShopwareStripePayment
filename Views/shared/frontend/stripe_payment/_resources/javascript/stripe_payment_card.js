@@ -12,7 +12,7 @@ var StripePaymentCard = {
     /**
      * The Stripe.js instance used e.g. for creating form fields and generating tokens.
      */
-    stripeService: null,
+    stripeClient: null,
 
     /**
      * An array of all available Stripe elements.
@@ -60,7 +60,7 @@ var StripePaymentCard = {
      */
     init: function(stripePublicKey, config) {
         var me = this;
-        me.stripeService = Stripe(stripePublicKey);
+        me.stripeClient = Stripe(stripePublicKey);
         // Save config
         me.setSelectedCard((typeof config.card !== 'undefined') ? config.card : null);
         me.allCards = (typeof config.allCards !== 'undefined') ? config.allCards : [];
@@ -124,7 +124,7 @@ var StripePaymentCard = {
         };
 
         // Define a closure to create all elements using the same 'Elements' instance
-        var elements = me.stripeService.elements({
+        var elements = me.stripeClient.elements({
             locale: me.locale
         });
         var createAndMountStripeElement = function(type, mountSelector) {
@@ -285,11 +285,11 @@ var StripePaymentCard = {
 
         // Check if a token/card was generated and hence the form can be submitted
         if (me.selectedCard) {
-            return;
-        } else {
-            // Prevent the form from being submitted until a new Stripe token is generated and received
-            event.preventDefault();
+            return undefined;
         }
+
+        // Prevent the form from being submitted until a new Stripe token is generated and received
+        event.preventDefault();
 
         // Check for invalid fields
         if (Object.keys(me.invalidFields).length > 0) {
@@ -298,7 +298,7 @@ var StripePaymentCard = {
 
         // Send the credit card information to Stripe
         me.setSubmitButtonsLoading();
-        me.stripeService.createToken(me.stripeElements[0], {
+        me.stripeClient.createToken(me.stripeElements[0], {
             name: me.formEl('.stripe-card-holder').val()
         }).then(function(result) {
             if (result.error) {
