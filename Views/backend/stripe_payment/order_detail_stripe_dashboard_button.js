@@ -51,7 +51,7 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.Overview.StripeDashboa
                             '</p>',
                             '<p class="stripe-payment" style="margin-top: 20px;">',
                                 '<a href="https://dashboard.stripe.com/payments/{stripeChargeId}" target="_blank" class="stripe-button">',
-                                    '<span>{stripeButtonTitle}</span>',
+                                    '{stripeButtonTitle}',
                                 '</a>',
                             '</p>',
                         '</div>',
