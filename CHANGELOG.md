@@ -1,3 +1,20 @@
+## 4.0.0
+
+### en
+
+**Note:** Starting with this release the plugin is no longer compatible to Shopware versions older than 5.2.0. Please install version 3.2.0 of this plugin on older Shopware versions.
+
+* Improves the visualization and validation of entered IBANs for SEPA payments.
+* Improves the reliability of Apple Pay payments.
+
+### de
+
+**Hinweis:** Beginnend mit diesem Release ist das Plugin nicht mehr zu Shopware-Versionen vor 5.2.0 kompatibel. Bitte installieren Sie unter älteren Shopware-Installationen Version 3.2.0 des Plugins.
+
+* Verbessert die Darstellung und Validierung eingegebener IBANs für SEPA-Zahlungen.
+* Verbessert die Zuverlässigkeit von Apple Pay-Zahlungen.
+
+
 ## 3.2.0
 
 ### en
