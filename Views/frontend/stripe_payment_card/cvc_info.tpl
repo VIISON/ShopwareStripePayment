@@ -1,3 +1,4 @@
+{* An initially hidden CVC info popup window *}
 {strip}
     <div class="stripe-payment-card-cvc-info-wrapper">
         <div class="stripe-payment-visa stripe-payment-card-cvc-info-popup-cardtype">

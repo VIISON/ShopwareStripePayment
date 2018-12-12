@@ -57,12 +57,10 @@ var StripePaymentSepa = {
 
         me.setupForm();
 
-        if (me.isShopware5Template()) {
-            // Add listener on changes of the selected payment method to setup the form again
-            $.subscribe('plugin/swShippingPayment/onInputChanged', function () {
-                me.setupForm();
-            });
-        }
+        // Add listener on changes of the selected payment method to setup the form again
+        $.subscribe('plugin/swShippingPayment/onInputChanged', function () {
+            me.setupForm();
+        });
     },
 
     /**
@@ -99,7 +97,7 @@ var StripePaymentSepa = {
                     fontFamily: accountOwnerFieldEl.css('font-family'),
                     fontSize: accountOwnerFieldEl.css('font-size'),
                     fontWeight: accountOwnerFieldEl.css('font-weight'),
-                    lineHeight: (accountOwnerFieldEl.css('line-height') != 'normal') ? accountOwnerFieldEl.css('line-height') : '16px', // Use fallback to 16px in Shopware 4
+                    lineHeight: accountOwnerFieldEl.css('line-height'),
                 },
             },
         };
@@ -180,9 +178,8 @@ var StripePaymentSepa = {
     },
 
     /**
-     * Checks the list of invalid fields for any entries and, if found, joins them to
-     * an error message, which is then displayed in the error box. If no invalid fields
-     * are found, the error box is hidden.
+     * Checks the list of invalid fields for any entries and, if found, joins them to an error message, which is then
+     * displayed in the error box. If no invalid fields are found, the error box is hidden.
      */
     updateValidationErrors: function () {
         var me = this,
@@ -308,14 +305,8 @@ var StripePaymentSepa = {
     /**
      * Finds both submit buttons on the page and adds the 'disabled' attribute as well as the loading indicator to each
      * of them.
-     *
-     * Note: If called in a shopware environment < v5, this method does nothing.
      */
     setSubmitButtonsLoading: function () {
-        if (!this.isShopware5Template()) {
-            return;
-        }
-
         // Reset the button first to prevent it from being added multiple loading indicators
         this.resetSubmitButtons();
         $('#shippingPaymentForm button[type="submit"], .confirm--actions button[form="shippingPaymentForm"]').each(function () {
@@ -326,14 +317,8 @@ var StripePaymentSepa = {
     /**
      * Finds both submit buttons on the page and resets them by removing the 'disabled' attribute as well as the loading
      * indicator.
-     *
-     * Note: If called in a shopware environment < v5, this method does nothing.
      */
     resetSubmitButtons: function () {
-        if (!this.isShopware5Template()) {
-            return;
-        }
-
         $('#shippingPaymentForm button[type="submit"], .confirm--actions button[form="shippingPaymentForm"]').each(function () {
             $(this).removeAttr('disabled').find('.js--loading').remove();
         });
@@ -359,8 +344,7 @@ var StripePaymentSepa = {
      * @return jQuery|null
      */
     getActiveStripeSepaForm: function () {
-        var paymentMethodSelector = (this.isShopware5Template()) ? '.payment--method' : '.method';
-        var form = $('input[id^="payment_mean"]:checked').closest(paymentMethodSelector).find('.stripe-payment-sepa-form');
+        var form = $('input[id^="payment_mean"]:checked').closest('.payment--method').find('.stripe-payment-sepa-form');
 
         return (form.length > 0) ? form.first() : null;
     },
@@ -382,13 +366,6 @@ var StripePaymentSepa = {
      * @return jQuery The main payment selection form element.
      */
     findForm: function () {
-        return (this.isShopware5Template()) ? $('#shippingPaymentForm') : $('#basketButton').closest('form');
+        return $('#shippingPaymentForm');
     },
-
-    /**
-     * @return Boolean True, if a Shopware 5 template is laoded. Otherwise false.
-     */
-    isShopware5Template: function () {
-        return typeof $.overlay !== 'undefined';
-    }
 };

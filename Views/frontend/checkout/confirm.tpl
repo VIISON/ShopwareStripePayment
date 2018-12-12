@@ -51,11 +51,32 @@
              * Uncomment the following line the speed up development by including the custom
              * Stripe payment library instead of loading it from the compiled Javascript file.
              *}
-            {* {include file="frontend/stripe_payment/_resources/javascript/stripe_payment_apple_pay.js"} *}
+            {* {include file="frontend/_public/src/javascript/stripe_payment_apple_pay.js"} *}
 
             document.stripeJQueryReady(function() {
-                // Include the shared initialization of the StripePaymentApplePay library
-                {include file='frontend/stripe_payment/checkout/stripe_payment_apple_pay/header.js'}
+                // Define the StripePaymentApplePay configuration
+                var stripePublicKey = '{$stripePayment.publicKey}';
+                var stripePaymentApplePaySnippets = {
+                    error: {
+                        connectionNotSecure: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/apple_pay name=error/connection_not_secure}{/stripe_snippet}',
+                        invalidConfig: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/apple_pay name=error/invalid_config}{/stripe_snippet}',
+                        notAvailable: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/apple_pay name=error/not_available}{/stripe_snippet}',
+                        paymentCancelled: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/apple_pay name=error/payment_cancelled}{/stripe_snippet}',
+                        title: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/apple_pay name=error/title}{/stripe_snippet}',
+                    }
+                };
+                var stripePaymentApplePayConfig = {
+                    countryCode: '{$sUserData.additional.country.countryiso}',
+                    currencyCode: '{$stripePayment.currency}',
+                    statementDescriptor: '{$stripePayment.applePayStatementDescriptor}',
+                    amount: '{$sAmount}',
+                };
+
+                // Initialize StripePaymentApplePay once the DOM is ready
+                $(document).ready(function() {
+                    StripePaymentApplePay.snippets = stripePaymentApplePaySnippets;
+                    StripePaymentApplePay.init(stripePublicKey, stripePaymentApplePayConfig);
+                });
             });
         </script>
     {/if}

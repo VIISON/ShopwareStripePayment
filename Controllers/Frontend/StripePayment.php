@@ -222,11 +222,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         // Get the necessary user info and shop info
         $user = $this->getUser();
         $userEmail = $user['additional']['user']['email'];
-        if ($this->get('plugins')->get('Frontend')->get('StripePayment')->assertMinimumVersion('5.2.0')) {
-            $customerNumber = $user['additional']['user']['customernumber'];
-        } else {
-            $customerNumber = $user['billingaddress']['customernumber'];
-        }
+        $customerNumber = $user['additional']['user']['customernumber'];
 
         // Prepare the charge data
         $chargeData = [
@@ -320,10 +316,10 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
      * controller's 'finishAction()'. The order is created by calling 'saveOrder()' on this controller
      * earlier, so it definitely exists after the redirect. However, 'finishAction()' can only find
      * the order, if we pass the 'sUniqueID' here. If we don't pass the 'paymentUniqueId', there are
-     * apparently some shops that fail to display the order summary, although a vanilla Shopware 5 or 5.1
-     * installation works correctly. That is, because the basket is empty after creating the order,
-     * the session's sOrderVariables are assigned to the view and NO redirect to the confirm action
-     * is performed (see https://github.com/shopware/shopware/blob/6e8b58477c1a9aa873328c258139fa6085238b4b/engine/Shopware/Controllers/Frontend/Checkout.php#L272-L275).
+     * apparently some shops that fail to display the order summary, although a vanilla Shopware 5 installation works
+     * correctly. That is, because the basket is empty after creating the order, the session's sOrderVariables are
+     * assigned to the view and NO redirect to the confirm action is performed (see
+     * https://github.com/shopware/shopware/blob/6e8b58477c1a9aa873328c258139fa6085238b4b/engine/Shopware/Controllers/Frontend/Checkout.php#L272-L275).
      * Anyway, setting 'sUniqueID' seems to be the safe way to display the order summary.
      *
      * @param Order $order
@@ -353,7 +349,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         }
         $this->redirect([
             'controller' => 'checkout',
-            'action' => ($this->get('shop')->getTemplate()->getVersion() < 3) ? 'confirm' : 'index',
+            'action' => 'index',
         ]);
     }
 

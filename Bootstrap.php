@@ -417,15 +417,6 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
     }
 
     /**
-     * Registers the plugin's namespace.
-     */
-    public function afterInit()
-    {
-        // Load the Shopware polyfill
-        require_once __DIR__ . '/Polyfill/Loader.php';
-    }
-
-    /**
      * Adds all subscribers to the event manager.
      */
     public function onStartDispatch()

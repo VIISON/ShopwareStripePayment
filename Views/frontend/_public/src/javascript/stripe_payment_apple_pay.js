@@ -60,17 +60,14 @@ var StripePaymentApplePay = {
             config.amount
         );
 
-        if (me.isShopware5Template()) {
-            // Save the original submit button content and add a listiner on the preloader
-            // event to be able to reset it
-            me.submitButtonContent = me.findSubmitButton().html();
-            $.subscribe('plugin/swPreloaderButton/onShowPreloader', function (event, button) {
-                if (me.shouldResetSubmitButton) {
-                    me.shouldResetSubmitButton = false;
-                    me.resetSubmitButton(button.$el);
-                }
-            });
-        }
+        // Save the original submit button content and add a listiner on the preloader event to be able to reset it
+        me.submitButtonContent = me.findSubmitButton().html();
+        $.subscribe('plugin/swPreloaderButton/onShowPreloader', function (event, button) {
+            if (me.shouldResetSubmitButton) {
+                me.shouldResetSubmitButton = false;
+                me.resetSubmitButton(button.$el);
+            }
+        });
 
         // Add a listener on the form
         me.findForm().on('submit', { scope: me }, me.onFormSubmission);
@@ -139,11 +136,8 @@ var StripePaymentApplePay = {
     onFormSubmission: function (event) {
         var me = event.data.scope;
 
-        // Make sure the AGB checkbox is checked, if it exists. Please note that this check is necessary in both
-        // Shopware 4 and Shopware 5 themes, for different reasons. In Shopware 4 templates the checkout form will
-        // always be submitted, even if the checkbox is not checked. Hence we don't want to trigger the payment,
-        // if not checked. Shopware 5 themes on the other hand validate the checkbox before submitting the
-        // checkout form. This validation however does not work on mobile (e.g. iOS Safari), which makes
+        // Make sure the AGB checkbox is checked, if it exists. Shopware 5 themes validate the checkbox before
+        // submitting the checkout form. This validation however does not work on mobile (e.g. iOS Safari), which makes
         // it necessary to always check ourselves.
         if ($('input#sAGB').length === 1 && !$('input#sAGB').is(':checked')) {
             return undefined;
@@ -185,13 +179,9 @@ var StripePaymentApplePay = {
     /**
      * Finds the submit button on the page and resets it by removing the 'disabled' attribute as well as the loading
      * indicator.
-     *
-     * Note: If called in a shopware environment < v5, this method does nothing.
      */
     resetSubmitButton: function (button) {
-        if (this.isShopware5Template()) {
-            button.html(this.submitButtonContent).removeAttr('disabled').find('.js--loading').remove();
-        }
+        button.html(this.submitButtonContent).removeAttr('disabled').find('.js--loading').remove();
     },
 
     /**
@@ -212,29 +202,18 @@ var StripePaymentApplePay = {
      * @return jQuery The main checkout form element.
      */
     findForm: function () {
-        if (this.isShopware5Template()) {
-            // Determine the form that is submitted by the 'submit' button
-            var submitButton = this.findSubmitButton();
-            var formId = 'form#' + submitButton.attr('form');
+        // Determine the form that is submitted by the 'submit' button
+        var submitButton = this.findSubmitButton();
+        var formId = 'form#' + submitButton.attr('form');
 
-            return $(formId);
-        } else {
-            return $('.additional_footer form');
-        }
+        return $(formId);
     },
 
     /**
      * @return jQuery The button element that submits the checkout.
      */
     findSubmitButton: function () {
-        return (this.isShopware5Template()) ? $('.confirm--content .main--actions button[type="submit"]') : this.findForm().parent().find('button[form="confirm--form"]');
-    },
-
-    /**
-     * @return Boolean True, if a Shopware 5 template is laoded. Otherwise false.
-     */
-    isShopware5Template: function () {
-        return typeof $.overlay !== 'undefined';
+        return $('.confirm--content .main--actions button[type="submit"]');
     },
 
     /**

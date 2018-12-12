@@ -50,10 +50,9 @@ var StripePaymentCard = {
     },
 
     /**
-     * Initializes the Stripe service using the given public key, saves the values of the given
-     * config in this object and triggers the initial setup of the payment form. Finally, a
-     * listener on the event for changing the payment method is added, which will trigger the
-     * form setup again.
+     * Initializes the Stripe service using the given public key, saves the values of the given config in this object
+     * and triggers the initial setup of the payment form. Finally, a listener on the event for changing the method is
+     * added, which will trigger the form setup again.
      *
      * @param String stripePublicKey
      * @param Object config
@@ -66,23 +65,19 @@ var StripePaymentCard = {
         me.allCards = (typeof config.allCards !== 'undefined') ? config.allCards : [];
         me.locale = config.locale || me.locale;
 
-        // Setup form and CVC popup
-        me.setupCVCPopupControls();
+        // Setup form
         me.setupForm();
 
-        if (me.isShopware5Template()) {
-            // Add listener on changes of the selected payment method to setup the form again
-            $.subscribe('plugin/swShippingPayment/onInputChanged', function() {
-                me.setupForm();
-            });
-        }
+        // Add listener on changes of the selected payment method to setup the form again
+        $.subscribe('plugin/swShippingPayment/onInputChanged', function() {
+            me.setupForm();
+        });
     },
 
     /**
-     * Sets up the payment form by first unounting all Stripe elements that might be already
-     * mounted to the DOM and clearing all validation errors. Then, if a stripe card payment
-     * method is selected, mounts new Stripe Elements fields to the form and adds some observers
-     * to other fields as well as the form.
+     * Sets up the payment form by first unounting all Stripe elements that might be already mounted to the DOM and
+     * clearing all validation errors. Then, if a stripe card payment method is selected, mounts new Stripe Elements
+     * fields to the form and adds some observers to other fields as well as the form.
      */
     setupForm: function() {
         // Reset form
@@ -104,8 +99,8 @@ var StripePaymentCard = {
     },
 
     /**
-     * Creates the Stripe Elements fields for card number, expiry and CVC and mounts them
-     * to their resepctive nodes in the active Stripe card payment form.
+     * Creates the Stripe Elements fields for card number, expiry and CVC and mounts them to their resepctive nodes in
+     * the active Stripe card payment form.
      */
     mountStripeElements: function() {
         var me = this;
@@ -118,7 +113,7 @@ var StripePaymentCard = {
                     fontFamily: cardHolderFieldEl.css('font-family'),
                     fontSize: cardHolderFieldEl.css('font-size'),
                     fontWeight: cardHolderFieldEl.css('font-weight'),
-                    lineHeight: (cardHolderFieldEl.css('line-height') != 'normal') ? cardHolderFieldEl.css('line-height') : '16px' // Use fallback to 16px in Shopware 4
+                    lineHeight: cardHolderFieldEl.css('line-height'),
                 }
             }
         };
@@ -154,8 +149,7 @@ var StripePaymentCard = {
     },
 
     /**
-     * Unmounts all existing Stripe elements from the Stripe card payment form they
-     * are currently mounted to.
+     * Unmounts all existing Stripe elements from the Stripe card payment form they are currently mounted to.
      */
     unmountStripeElements: function() {
         this.stripeElements.forEach(function(element) {
@@ -165,8 +159,8 @@ var StripePaymentCard = {
     },
 
     /**
-     * Adds change listeners to the card selection and card holder field as well as
-     * a submission listener on the main payment form.
+     * Adds change listeners to the card selection and card holder field as well as a submission listener on the main
+     * payment form.
      */
     observeForm: function() {
         // Add listeners
@@ -180,8 +174,8 @@ var StripePaymentCard = {
     },
 
     /**
-     * Removes all validation errors for the field with the given 'fieldId' and triggers
-     * an update of the displayed validation errors.
+     * Removes all validation errors for the field with the given 'fieldId' and triggers an update of the displayed
+     * validation errors.
      *
      * @param String fieldId
      */
@@ -196,7 +190,8 @@ var StripePaymentCard = {
      *
      * @param String fieldId
      * @param String errorCode (optional) The code used to find a localised error message.
-     * @param String message (optioanl) The fallback error message used in case no 'errorCode' is provided or no respective, localised description exists.
+     * @param String message (optioanl) The fallback error message used in case no 'errorCode' is provided or no
+     *        respective, localised description exists.
      */
     markFieldInvalid: function(fieldId, errorCode, message) {
         this.invalidFields[fieldId] = this.snippets.error[errorCode || ''] || message || 'Unknown error';
@@ -204,9 +199,8 @@ var StripePaymentCard = {
     },
 
     /**
-     * Checks the list of invalid fields for any entries and, if found, joins them to
-     * an error message, which is then displayed in the error box. If no invalid fields
-     * are found, the error box is hidden.
+     * Checks the list of invalid fields for any entries and, if found, joins them to an error message, which is then
+     * displayed in the error box. If no invalid fields are found, the error box is hidden.
      */
     updateValidationErrors: function() {
         var me = this,
@@ -231,9 +225,8 @@ var StripePaymentCard = {
     },
 
     /**
-     * Saves the given card and removes all hidden Stripe fields from the form.
-     * If the card exists, its ID as well as its encoded data are added to the form
-     * as hidden fields.
+     * Saves the given card and removes all hidden Stripe fields from the form. If the card exists, its ID as well as
+     * its encoded data are added to the form as hidden fields.
      *
      * @param card A Stripe card object.
      */
@@ -250,32 +243,10 @@ var StripePaymentCard = {
     },
 
     /**
-     * Adds 'click' listeners to the CVC info button as well as the info popup's close button
-     * for opening/closing the popup.
-     *
-     * Note: If called in a shopware environment > v5, this method does nothing.
-     */
-    setupCVCPopupControls: function() {
-        if (this.isShopware5Template()) {
-            return;
-        }
-
-        var cvcInfoPopup = $('.stripe-payment-card-cvc-info-popup');
-        $('.stripe-payment-card-cvc-info-button').click(function(event) {
-            cvcInfoPopup.show();
-            cvcInfoPopup.parent().show();
-        });
-        $('.stripe-payment-card-cvc-info-popup-close').click(function(event) {
-            cvcInfoPopup.parent().hide();
-            cvcInfoPopup.hide();
-        });
-    },
-
-    /**
      * First validates the form and payment state and, if the main form can be submitted, does nothing further.
-     * If however the main form cannot be submitted, because no card is selected (or no token was created),
-     * a new Stripe card and token are generated using the entered card data and saved in the form, before
-     * the submission is triggered again.
+     * If however the main form cannot be submitted, because no card is selected (or no token was created), a new Stripe
+     * card and token are generated using the entered card data and saved in the form, before the submission is
+     * triggered again.
      *
      * @param Event event
      */
@@ -328,8 +299,8 @@ var StripePaymentCard = {
     },
 
     /**
-     * Adds a subscriber to the card holder form field that is fired when its value is changed
-     * to validate the entered value.
+     * Adds a subscriber to the card holder form field that is fired when its value is changed to validate the
+     * entered value.
      *
      * @param Object event
      */
@@ -353,9 +324,9 @@ var StripePaymentCard = {
     },
 
     /**
-     * Adds a change observer to the card selection field. If an existing card is selected, all form fields
-     * are hidden and the card's Stripe information is added to the form. If the 'new' option is selected,
-     * all fields made visible and the Stripe card info is removed from the form.
+     * Adds a change observer to the card selection field. If an existing card is selected, all form fields are hidden
+     * and the card's Stripe information is added to the form. If the 'new' option is selected, all fields made visible
+     * and the Stripe card info is removed from the form.
      *
      * @param Object event
      */
@@ -398,16 +369,10 @@ var StripePaymentCard = {
     },
 
     /**
-     * Finds both submit buttons on the page and adds the 'disabled' attribute as well as the loading indicator
-     * to each of the,.
-     *
-     * Note: If called in a shopware environment < v5, this method does nothing.
+     * Finds both submit buttons on the page and adds the 'disabled' attribute as well as the loading indicator to each
+     * of them.
      */
     setSubmitButtonsLoading: function() {
-        if (!this.isShopware5Template()) {
-            return;
-        }
-
         // Reset the button first to prevent it from being added multiple loading indicators
         this.resetSubmitButtons();
         $('#shippingPaymentForm button[type="submit"], .confirm--actions button[form="shippingPaymentForm"]').each(function() {
@@ -416,16 +381,10 @@ var StripePaymentCard = {
     },
 
     /**
-     * Finds both submit buttons on the page and resets them by removing the 'disabled' attribute
-     * as well as the loading indicator.
-     *
-     * Note: If called in a shopware environment < v5, this method does nothing.
+     * Finds both submit buttons on the page and resets them by removing the 'disabled' attribute as well as the
+     * loading indicator.
      */
     resetSubmitButtons: function() {
-        if (!this.isShopware5Template()) {
-            return;
-        }
-
         $('#shippingPaymentForm button[type="submit"], .confirm--actions button[form="shippingPaymentForm"]').each(function() {
             $(this).removeAttr('disabled').find('.js--loading').remove();
         });
@@ -445,23 +404,21 @@ var StripePaymentCard = {
     },
 
     /**
-     * Tries to find a stripe card form for the currently active payment method. That is, if a stripe card
-     * payment method is selected, its form is returned, otherwise returns null.
+     * Tries to find a stripe card form for the currently active payment method. That is, if a stripe card payment
+     * method is selected, its form is returned, otherwise returns null.
      *
      * @return jQuery|null
      */
     getActiveStripeCardForm: function() {
-        var paymentMethodSelector = (this.isShopware5Template()) ? '.payment--method' : '.method';
-        var form = $('input[id^="payment_mean"]:checked').closest(paymentMethodSelector).find('.stripe-payment-card-form');
+        var form = $('input[id^="payment_mean"]:checked').closest('.payment--method').find('.stripe-payment-card-form');
 
         return (form.length > 0) ? form.first() : null;
     },
 
     /**
-     * Applies a jQuery query on the DOM tree under the active stripe card form using
-     * the given selector. This method should be used when selecting any fields that
-     * are part of a Stripe card payment form. If no Stripe card form is active, an
-     * empty query result is returned.
+     * Applies a jQuery query on the DOM tree under the active stripe card form using the given selector. This method
+     * should be used when selecting any fields that are part of a Stripe card payment form. If no Stripe card form is
+     * active, an empty query result is returned.
      *
      * @param String selector
      * @return jQuery
@@ -475,14 +432,6 @@ var StripePaymentCard = {
      * @return jQuery The main payment selection form element.
      */
     findForm: function() {
-        return (this.isShopware5Template()) ? $('#shippingPaymentForm') : $('#basketButton').closest('form');
+        return $('#shippingPaymentForm');
     },
-
-    /**
-     * @return Boolean True, if a Shopware 5 template is laoded. Otherwise false.
-     */
-    isShopware5Template: function() {
-        return typeof $.overlay !== 'undefined';
-    }
-
 };

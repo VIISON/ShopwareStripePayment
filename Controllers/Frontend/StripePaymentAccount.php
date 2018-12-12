@@ -34,15 +34,9 @@ class Shopware_Controllers_Frontend_StripePaymentAccount extends Shopware_Contro
     public function manageCreditCardsAction()
     {
         $stripeSession = Util::getStripeSession();
+
         // Load the template
-        if (Shopware()->Shop()->getTemplate()->getVersion() >= 3) {
-            // Shopware 5
-            $this->View()->loadTemplate('frontend/account/stripe_payment_credit_cards.tpl');
-        } else {
-            // Shopware 4 template (still valid in Shopware 5.0)
-            $this->View()->loadTemplate('frontend/stripe_payment/account/credit_cards.tpl');
-            $this->View()->extendsTemplate('frontend/stripe_payment/account/content_right.tpl');
-        }
+        $this->View()->loadTemplate('frontend/account/stripe_payment_credit_cards.tpl');
 
         try {
             // Load all cards of the customer
