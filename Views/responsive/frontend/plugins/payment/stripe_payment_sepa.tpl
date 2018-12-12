@@ -15,7 +15,7 @@
             <div class="panel--tr stripe-sepa-field">
                 <label>
                     <span class="panel--td">{s namespace=frontend/plugins/payment/stripe_payment/sepa name=form/iban}{/s} *</span>
-                    <input type="text" class="stripe-sepa-iban panel--td" name="iban" value="" placeholder="DE00 1111 2222 3333 4444 55">
+                    <div class="stripe-element-sepa-iban panel--td"><!-- Stripe element is inserted here --></div>
                 </label>
             </div>
             {* Account owner *}

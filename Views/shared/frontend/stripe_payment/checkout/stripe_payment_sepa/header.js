@@ -7,22 +7,20 @@
 var stripePublicKey = '{$stripePayment.publicKey}';
 var stripePaymentSepaSnippets = {
     error: {
+        incomplete_iban: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/sepa name=error/incomplete_iban}{/stripe_snippet}',
         invalid_account_owner: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/sepa name=error/invalid_account_owner}{/stripe_snippet}',
         invalid_city: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/sepa name=error/invalid_city}{/stripe_snippet}',
         invalid_country: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/sepa name=error/invalid_country}{/stripe_snippet}',
         invalid_iban: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/sepa name=error/invalid_iban}{/stripe_snippet}',
+        invalid_iban_country_code: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/sepa name=error/invalid_iban_country_code}{/stripe_snippet}',
         invalid_street: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/sepa name=error/invalid_street}{/stripe_snippet}',
         invalid_zip_code: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/sepa name=error/invalid_zip_code}{/stripe_snippet}',
         title: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/sepa name=error/title}{/stripe_snippet}',
-        sourceCreation: {
-            invalid_bank_account_iban: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/sepa name=payment_error/message/invalid_bank_account_iban}{/stripe_snippet}',
-            invalid_owner_name: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/sepa name=payment_error/message/invalid_owner_name}{/stripe_snippet}'
-        }
     }
 };
 var stripePaymentSepaConfig = {
     currency: '{$stripePayment.currency}',
-    locale: '{$stripePayment.locale}'
+    locale: '{$stripePayment.locale}',
 };
 if ('{$stripePayment.rawSepaSource}') {
     stripePaymentSepaConfig.sepaSource = JSON.parse('{$stripePayment.rawSepaSource}');
