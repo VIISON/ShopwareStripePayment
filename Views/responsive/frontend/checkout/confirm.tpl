@@ -45,7 +45,7 @@
         </script>
     {elseif $sUserData.additional.payment.class == "StripePaymentApplePay"}
         {* Include and set up the Stripe SDK *}
-        <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+        <script type="text/javascript" src="https://js.stripe.com/v3/"></script>
         <script type="text/javascript">
             {**
              * Uncomment the following line the speed up development by including the custom
