@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "007a08c8f8fa00bbb44f77f81f514620",
+    "content-hash": "59a611b8ded3ede2365e1ad9e95a33eb",
     "packages": [
         {
             "name": "composer/installers",
@@ -115,27 +115,27 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v4.9.1",
+            "version": "v6.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "1ce201a9fb8bda96e87789f4cd952518f37b88e0"
+                "reference": "ba85ad7c1618462083a7e9a542ded929232e8bff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/1ce201a9fb8bda96e87789f4cd952518f37b88e0",
-                "reference": "1ce201a9fb8bda96e87789f4cd952518f37b88e0",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/ba85ad7c1618462083a7e9a542ded929232e8bff",
+                "reference": "ba85ad7c1618462083a7e9a542ded929232e8bff",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
                 "ext-json": "*",
                 "ext-mbstring": "*",
-                "php": ">=5.3.3"
+                "php": ">=5.4.0"
             },
             "require-dev": {
+                "php-coveralls/php-coveralls": "1.*",
                 "phpunit/phpunit": "~4.0",
-                "satooshi/php-coveralls": "~0.6.1",
                 "squizlabs/php_codesniffer": "~2.0"
             },
             "type": "library",
@@ -166,7 +166,7 @@
                 "payment processing",
                 "stripe"
             ],
-            "time": "2017-05-10T18:53:00+00:00"
+            "time": "2018-12-11T21:33:24+00:00"
         }
     ],
     "packages-dev": [
