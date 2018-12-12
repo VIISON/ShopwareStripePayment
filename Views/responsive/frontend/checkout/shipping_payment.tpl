@@ -12,7 +12,6 @@
 {block name="frontend_index_header_javascript_jquery"}
     {$smarty.block.parent}
 
-    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <script type="text/javascript" src="https://js.stripe.com/v3/"></script>
     <script type="text/javascript">
         {**
