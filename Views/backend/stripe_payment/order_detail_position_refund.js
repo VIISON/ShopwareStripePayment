@@ -166,7 +166,7 @@ Ext.define('Shopware.apps.StripePayment.Order.controller.Detail', {
         });
         refundWindow.total = newOverallTotal;
         refundWindow.form.getForm().setValues({
-            total: Ext.util.Format.currency(newOverallTotal, ' &euro;', 2, true)
+            total: Ext.util.Format.currency(newOverallTotal, '', 2, true)
         });
     },
 

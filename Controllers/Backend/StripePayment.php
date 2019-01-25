@@ -97,13 +97,13 @@ class Shopware_Controllers_Backend_StripePayment extends Shopware_Controllers_Ba
         $internalComment = $order->getInternalComment();
         $internalComment .= "\n--------------------------------------------------------------\n"
                          . 'Stripe Rückerstattung (' . date('d.m.Y, G:i:s') . ")\n"
-                         . 'Betrag: ' . number_format($amount, 2, ',', '.') . " €\n"
+                         . 'Betrag: ' . number_format($amount, 2, ',', '.') . " CHF\n"
                          . 'Kommentar: ' . $comment . "\n"
                          . "Positionen:\n";
         foreach ($positions as $position) {
             $price = number_format($position['price'], 2, ',', '.');
             $totalPrice = number_format($position['total'], 2, ',', '.');
-            $internalComment .= ' - ' . $position['quantity'] . ' x ' . $position['articleNumber'] . ', je ' . $price . ' €, Gesamt: ' . $totalPrice . " €\n";
+            $internalComment .= ' - ' . $position['quantity'] . ' x ' . $position['articleNumber'] . ', je ' . $price . ' CHF, Gesamt: ' . $totalPrice . " CHF\n";
         }
         $internalComment .= "--------------------------------------------------------------\n";
         $order->setInternalComment($internalComment);

@@ -105,7 +105,7 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.position.refund.Window
                 align: 'right',
                 flex: 1,
                 renderer: function(value, metaData, record) {
-                    return Ext.util.Format.number(value, '0.000,00 €/i');
+                    return Ext.util.Format.number(value, '0,000.00/i');
                 }
             }, {
                 xtype: 'gridcolumn',
@@ -114,7 +114,7 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.position.refund.Window
                 align: 'right',
                 flex: 1,
                 renderer: function(value, metaData, record) {
-                    return Ext.util.Format.number(value, '0.000,00 €/i');
+                    return Ext.util.Format.number(value, '0,000.00/i');
                 }
             }],
             plugins: [
@@ -149,7 +149,7 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.position.refund.Window
                     xtype: 'displayfield',
                     fieldLabel: '{s name=order/view/detail/position/refund/window/form/total_amount}{/s}',
                     name: 'total',
-                    value: Ext.util.Format.currency(this.total, ' &euro;', 2, true)
+                    value: Ext.util.Format.currency(this.total, '', 2, true)
                 }, {
                     xtype: 'textfield',
                     fieldLabel: '{s name=order/view/detail/position/refund/window/form/comment}{/s}',
