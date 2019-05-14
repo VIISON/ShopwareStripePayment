@@ -72,7 +72,7 @@
                     <label>
                         <span class="outer-checkbox">
                             <div class="checkbox">
-                                <input class="stripe-save-card" type="checkbox" checked="checked">
+                                <input class="stripe-save-card" type="checkbox">
                                 <span class="checkbox--state"></span>
                             </div>
                         </span>
