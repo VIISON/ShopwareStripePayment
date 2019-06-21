@@ -40,7 +40,7 @@ class Util
 
         // Set API version manually to make all plugin versions working, no matter which
         // version is selected in the Stripe app settings
-        Stripe\Stripe::setApiVersion('2016-07-06');
+        Stripe\Stripe::setApiVersion('2019-05-16');
 
         // Set some plugin info that will be added to every Stripe request
         $defaultShop = Shopware()->Models()->getRepository('Shopware\\Models\\Shop\\Shop')->getActiveDefault();
@@ -83,13 +83,11 @@ class Util
         }
 
         // Get information about all card sources
-        $cardSources = array_filter($customer->sources->data, function ($source) {
-            return $source->type === 'card';
-        });
+        $cardSources = Stripe\PaymentMethod::all(['customer' => $customer->id, 'type' => 'card'])->data;
         $cards = array_map(function ($source) {
             return [
                 'id' => $source->id,
-                'name' => $source->owner->name,
+                'name' => $source->billing_details->name,
                 'brand' => $source->card->brand,
                 'last4' => $source->card->last4,
                 'exp_month' => $source->card->exp_month,
@@ -202,6 +200,7 @@ class Util
         // Create a new Stripe customer and save it in the user's attributes
         try {
             self::$stripeCustomer = Stripe\Customer::create([
+                'name' => self::getCustomerName(),
                 'description' => self::getCustomerName(),
                 'email' => $customer->getEmail(),
                 'metadata' => [

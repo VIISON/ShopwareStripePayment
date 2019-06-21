@@ -8,18 +8,19 @@
 namespace Shopware\Plugins\StripePayment\Components\PaymentMethods;
 
 use ShopwarePlugin\PaymentMethods\Components\GenericPaymentMethod;
+use Stripe;
 
-abstract class AbstractStripePaymentMethod extends GenericPaymentMethod
+abstract class AbstractStripePaymentIntentPaymentMethod extends GenericPaymentMethod
 {
     use StripePaymentMethodTrait;
 
     /**
-     * Returns the source that shall be used to create a Stripe charge during checkout.
+     * Returns the paymentIntent that shall be used to create a Stripe charge during checkout.
      *
      * @param int $amountInCents
      * @param string $currencyCode
-     * @return Stripe\Source
+     * @return Stripe\PaymentIntent
      * @throws \Exception
      */
-    abstract public function createStripeSource($amountInCents, $currencyCode);
+    abstract public function createStripePaymentIntent($amountInCents, $currencyCode);
 }

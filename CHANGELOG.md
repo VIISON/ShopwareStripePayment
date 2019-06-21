@@ -1,3 +1,14 @@
+## NEXT MAJOR RELEASE
+
+### en
+
+* Payment by credit card now uses the new "Payment Intents" API which provides "Strong Customer Authentication" (SCA).
+
+### de
+
+* Die Zahlung mittels Kreditkarte nutzt nun die neue "Payment Intents" API welche "Strong Customer Authentication" (SCA) bereitstellt.
+
+
 ## 4.0.0
 
 ### en

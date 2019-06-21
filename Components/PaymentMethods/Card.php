@@ -10,12 +10,12 @@ namespace Shopware\Plugins\StripePayment\Components\PaymentMethods;
 use Shopware\Plugins\StripePayment\Util;
 use Stripe;
 
-class Card extends AbstractStripePaymentMethod
+class Card extends AbstractStripePaymentIntentPaymentMethod
 {
     /**
      * @inheritdoc
      */
-    public function createStripeSource($amountInCents, $currencyCode)
+    public function createStripePaymentIntent($amountInCents, $currencyCode)
     {
         Util::initStripeAPI();
 
@@ -23,67 +23,53 @@ class Card extends AbstractStripePaymentMethod
         $stripeSession = Util::getStripeSession();
         if (!$stripeSession->selectedCard) {
             throw new \Exception($this->getSnippet('payment_error/message/no_card_selected'));
-        } elseif ($stripeSession->selectedCard['token_id']) {
+        } elseif ($stripeSession->selectedCard['id']) {
+            $stripeCustomer = Util::getStripeCustomer();
+            if (!$stripeCustomer) {
+                $stripeCustomer = Util::createStripeCustomer();
+            }
+            $user = Shopware()->Session()->sOrderVariables['sUserData'];
+            $userEmail = $user['additional']['user']['email'];
+            $customerNumber = $user['additional']['user']['customernumber'];
+
             // Use the token to create a new Stripe card source
-            $source = Stripe\Source::create([
-                'type' => 'card',
-                'token' => $stripeSession->selectedCard['token_id'],
+            $paymentIntentConfig = [
+                'amount' => $amountInCents,
+                'currency' => $currencyCode,
+                'payment_method' => $stripeSession->selectedCard['id'],
+                'confirmation_method' => 'automatic',
                 'metadata' => $this->getSourceMetadata(),
-            ]);
-
-            // Remove the token from the selected card, since it can only be consumed once
-            unset($stripeSession->selectedCard['token_id']);
-
+                'customer' => $stripeCustomer->id,
+                'description' => sprintf('%s / Customer %s', $userEmail, $customerNumber),
+            ];
+            if ($this->includeStatmentDescriptorInCharge()) {
+                $paymentIntentConfig['statement_descriptor'] = mb_substr($this->getStatementDescriptor(), 0, 22);
+            }
+            // Enable receipt emails, if configured
+            $sendReceiptEmails = $this->get('plugins')->get('Frontend')->get('StripePayment')->Config()->get('sendStripeChargeEmails');
+            if ($sendReceiptEmails) {
+                $paymentIntentConfig['receipt_email'] = $userEmail;
+            }
             if ($stripeSession->saveCardForFutureCheckouts) {
                 // Add the card to the Stripe customer
-                $stripeCustomer = Util::getStripeCustomer();
-                if (!$stripeCustomer) {
-                    $stripeCustomer = Util::createStripeCustomer();
-                }
-                $source = $stripeCustomer->sources->create([
-                    'source' => $source->id,
-                ]);
+                $paymentIntentConfig['save_payment_method'] = $stripeSession->saveCardForFutureCheckouts;
                 unset($stripeSession->saveCardForFutureCheckouts);
             }
-
-            // Overwrite the card's id to allow using it again in case of an error
-            $stripeSession->selectedCard['id'] = $source->id;
-        } else {
-            // Try to find the source corresponding to the selected card
-            $source = Stripe\Source::retrieve($stripeSession->selectedCard['id']);
+            $paymentIntent = Stripe\PaymentIntent::create($paymentIntentConfig);
         }
-        if (!$source) {
+        if (!$paymentIntent) {
             throw new \Exception($this->getSnippet('payment_error/message/transaction_not_found'));
         }
 
-        // Check the created/retrieved source
-        $paymentMethod = $this->get('session')->sOrderVariables->sPayment['name'];
-        if ($source->card->three_d_secure === 'required' || ($source->card->three_d_secure !== 'not_supported' && $paymentMethod === 'stripe_payment_card_three_d_secure')) {
-            // The card requires the 3D-Secure flow or supports it and the selected payment method requires it,
-            // hence create a new 3D-Secure source that is based on the card source
-            $returnUrl = $this->assembleShopwareUrl([
-                'controller' => 'StripePayment',
-                'action' => 'completeRedirectFlow',
-            ]);
-            try {
-                $source = Stripe\Source::create([
-                    'type' => 'three_d_secure',
-                    'amount' => $amountInCents,
-                    'currency' => $currencyCode,
-                    'three_d_secure' => [
-                        'card' => $source->id,
-                    ],
-                    'redirect' => [
-                        'return_url' => $returnUrl,
-                    ],
-                    'metadata' => $this->getSourceMetadata(),
-                ]);
-            } catch (\Exception $e) {
-                throw new \Exception($this->getErrorMessage($e), 0, $e);
-            }
-        }
+        $returnUrl = $this->assembleShopwareUrl([
+            'controller' => 'StripePaymentIntent',
+            'action' => 'completeRedirectFlow',
+        ]);
+        $paymentIntent->confirm([
+            'return_url' => $returnUrl,
+        ]);
 
-        return $source;
+        return $paymentIntent;
     }
 
     /**

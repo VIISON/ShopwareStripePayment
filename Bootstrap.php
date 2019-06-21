@@ -381,6 +381,27 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                 // Nothing to do
             case '4.0.0':
                 // Next release
+                $entityManager = $this->get('models');
+                $stripePaymentCardMethod = $entityManager->getRepository('Shopware\\Models\\Payment\\Payment')->findOneBy([
+                    'name' => 'stripe_payment_card',
+                ]);
+                if ($stripePaymentCardMethod) {
+                    $stripePaymentCardMethod->setAction('StripePaymentIntent');
+                    $entityManager->flush($stripePaymentCardMethod);
+                }
+                $stripePaymentCard3DSecureMethod = $entityManager->getRepository('Shopware\\Models\\Payment\\Payment')->findOneBy([
+                    'name' => 'stripe_payment_card_three_d_secure',
+                ]);
+                if ($stripePaymentCard3DSecureMethod) {
+                    if ($oldVersion === 'install') {
+                        // If this is a first install remove the 3D secure payment method here because the new payment
+                        // intents API handles 3D secure cards itself. The decision is not ours to make anymore.
+                        $entityManager->remove($stripePaymentCard3DSecureMethod);
+                    } else {
+                        $stripePaymentCard3DSecureMethod->setAction('StripePaymentIntent');
+                    }
+                    $entityManager->flush($stripePaymentCard3DSecureMethod);
+                }
 
                 break;
             default:

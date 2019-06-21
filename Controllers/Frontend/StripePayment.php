@@ -7,10 +7,13 @@
 
 use Shopware\Components\CSRFWhitelistAware;
 use Shopware\Models\Order\Order;
+use Shopware\Plugins\StripePayment\Controllers\StripePaymentTrait;
 use Shopware\Plugins\StripePayment\Util;
 
 class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_Frontend_Payment implements CSRFWhitelistAware
 {
+    use StripePaymentTrait;
+
     /**
      * The ID of the order payment status 'completely paid'
      */
@@ -254,14 +257,6 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
     }
 
     /**
-     * @return int
-     */
-    protected function getAmountInCents()
-    {
-        return round($this->getAmount() * 100);
-    }
-
-    /**
      * Saves the order in the database adding both the ID of the given $charge (as 'transactionId')
      * and the charge's 'balance_transaction' (as 'paymentUniqueId' aka 'temporaryID'). We use the
      * 'balance_transaction' as 'paymentUniqueId', because altough the column in the backend order
@@ -276,7 +271,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
      */
     protected function saveOrderWithCharge(Stripe\Charge $charge)
     {
-        // Save the payment details in the order. Use the balance_transaction as the paymentUniqueId,
+        // Save the payment details in the order. Use the source_id as the paymentUniqueId,
         // because altough the column in the backend order list is named 'Transaktion' or 'tranaction',
         // it displays NOT the transactionId, but the field 'temporaryID', to which the paymentUniqueId
         // is written. Additionally the balance_transaction is displayed in the shop owner's Stripe
@@ -308,49 +303,6 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         }
 
         return $order;
-    }
-
-    /**
-     * Finishes the checkout process by redirecting to the checkout's finish page. By passing the
-     * 'paymentUniqueId' (aka 'temporaryID') to 'sUniqueID', we allow an early return of the 'Checkout'
-     * controller's 'finishAction()'. The order is created by calling 'saveOrder()' on this controller
-     * earlier, so it definitely exists after the redirect. However, 'finishAction()' can only find
-     * the order, if we pass the 'sUniqueID' here. If we don't pass the 'paymentUniqueId', there are
-     * apparently some shops that fail to display the order summary, although a vanilla Shopware 5 installation works
-     * correctly. That is, because the basket is empty after creating the order, the session's sOrderVariables are
-     * assigned to the view and NO redirect to the confirm action is performed (see
-     * https://github.com/shopware/shopware/blob/6e8b58477c1a9aa873328c258139fa6085238b4b/engine/Shopware/Controllers/Frontend/Checkout.php#L272-L275).
-     * Anyway, setting 'sUniqueID' seems to be the safe way to display the order summary.
-     *
-     * @param Order $order
-     */
-    protected function finishCheckout(Order $order)
-    {
-        Util::resetStripeSession();
-        $this->redirect([
-            'controller' => 'checkout',
-            'action' => 'finish',
-            'sUniqueID' => $order->getTemporaryId(),
-        ]);
-    }
-
-    /**
-     * Cancles the checkout process by redirecting (back) to the checkout's confirm page. If the optional
-     * parameter $errorMessage is set, it is prefixed added to the session so that it will be displayed on the
-     * confirm page after the redirect.
-     *
-     * @param string|null $errorMessage
-     */
-    protected function cancelCheckout($errorMessage = null)
-    {
-        if ($errorMessage) {
-            $prefix = $this->get('snippets')->getNamespace('frontend/plugins/payment/stripe_payment/base')->get('payment_error/message/charge_failed');
-            Util::getStripeSession()->paymentError = $prefix . ' ' . $errorMessage;
-        }
-        $this->redirect([
-            'controller' => 'checkout',
-            'action' => 'index',
-        ]);
     }
 
     /**
