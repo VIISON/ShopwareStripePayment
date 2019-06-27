@@ -83,7 +83,10 @@ class Util
         }
 
         // Get information about all card sources
-        $cardSources = Stripe\PaymentMethod::all(['customer' => $customer->id, 'type' => 'card'])->data;
+        $cardSources = Stripe\PaymentMethod::all([
+            'customer' => $customer->id,
+            'type' => 'card',
+        ])->data;
         $cards = array_map(function ($source) {
             return [
                 'id' => $source->id,
