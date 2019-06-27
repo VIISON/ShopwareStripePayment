@@ -21,42 +21,42 @@ class Card extends AbstractStripePaymentIntentPaymentMethod
 
         // Determine the card source
         $stripeSession = Util::getStripeSession();
-        if (!$stripeSession->selectedCard) {
+        if (!$stripeSession->selectedCard || !isset($stripeSession->selectedCard['id'])) {
             throw new \Exception($this->getSnippet('payment_error/message/no_card_selected'));
-        } elseif ($stripeSession->selectedCard['id']) {
-            $stripeCustomer = Util::getStripeCustomer();
-            if (!$stripeCustomer) {
-                $stripeCustomer = Util::createStripeCustomer();
-            }
-            $user = Shopware()->Session()->sOrderVariables['sUserData'];
-            $userEmail = $user['additional']['user']['email'];
-            $customerNumber = $user['additional']['user']['customernumber'];
-
-            // Use the token to create a new Stripe card source
-            $paymentIntentConfig = [
-                'amount' => $amountInCents,
-                'currency' => $currencyCode,
-                'payment_method' => $stripeSession->selectedCard['id'],
-                'confirmation_method' => 'automatic',
-                'metadata' => $this->getSourceMetadata(),
-                'customer' => $stripeCustomer->id,
-                'description' => sprintf('%s / Customer %s', $userEmail, $customerNumber),
-            ];
-            if ($this->includeStatmentDescriptorInCharge()) {
-                $paymentIntentConfig['statement_descriptor'] = mb_substr($this->getStatementDescriptor(), 0, 22);
-            }
-            // Enable receipt emails, if configured
-            $sendReceiptEmails = $this->get('plugins')->get('Frontend')->get('StripePayment')->Config()->get('sendStripeChargeEmails');
-            if ($sendReceiptEmails) {
-                $paymentIntentConfig['receipt_email'] = $userEmail;
-            }
-            if ($stripeSession->saveCardForFutureCheckouts) {
-                // Add the card to the Stripe customer
-                $paymentIntentConfig['save_payment_method'] = $stripeSession->saveCardForFutureCheckouts;
-                unset($stripeSession->saveCardForFutureCheckouts);
-            }
-            $paymentIntent = Stripe\PaymentIntent::create($paymentIntentConfig);
         }
+        $stripeCustomer = Util::getStripeCustomer();
+        if (!$stripeCustomer) {
+            $stripeCustomer = Util::createStripeCustomer();
+        }
+        $user = Shopware()->Session()->sOrderVariables['sUserData'];
+        $userEmail = $user['additional']['user']['email'];
+        $customerNumber = $user['additional']['user']['customernumber'];
+
+        // Use the token to create a new Stripe card source
+        $paymentIntentConfig = [
+            'amount' => $amountInCents,
+            'currency' => $currencyCode,
+            'payment_method' => $stripeSession->selectedCard['id'],
+            'confirmation_method' => 'automatic',
+            'metadata' => $this->getSourceMetadata(),
+            'customer' => $stripeCustomer->id,
+            'description' => sprintf('%s / Customer %s', $userEmail, $customerNumber),
+        ];
+        if ($this->includeStatmentDescriptorInCharge()) {
+            $paymentIntentConfig['statement_descriptor'] = mb_substr($this->getStatementDescriptor(), 0, 22);
+        }
+        // Enable receipt emails, if configured
+        $sendReceiptEmails = $this->get('plugins')->get('Frontend')->get('StripePayment')->Config()->get('sendStripeChargeEmails');
+        if ($sendReceiptEmails) {
+            $paymentIntentConfig['receipt_email'] = $userEmail;
+        }
+        if ($stripeSession->saveCardForFutureCheckouts) {
+            // Add the card to the Stripe customer
+            $paymentIntentConfig['save_payment_method'] = $stripeSession->saveCardForFutureCheckouts;
+            unset($stripeSession->saveCardForFutureCheckouts);
+        }
+
+        $paymentIntent = Stripe\PaymentIntent::create($paymentIntentConfig);
         if (!$paymentIntent) {
             throw new \Exception($this->getSnippet('payment_error/message/transaction_not_found'));
         }
