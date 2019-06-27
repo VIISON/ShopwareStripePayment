@@ -32,7 +32,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
             );
         } catch (Exception $e) {
             $this->get('pluginlogger')->error(
-                'StripePayment: Failed to create paymentIntent',
+                'StripePayment: Failed to create payment intent',
                 [
                     'exception' => $e,
                     'trace' => $e->getTrace(),
