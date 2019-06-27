@@ -317,7 +317,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         if (!$order) {
             return;
         }
-        $paymentStatus = $this->get('models')->find('Shopware\\Models\\Order\\Status', Status::PAYMENT_STATE_REVIEW_NECESSARY);
+        $paymentStatus = $this->get('models')->find(Status::class, Status::PAYMENT_STATE_REVIEW_NECESSARY);
         $order->setPaymentStatus($paymentStatus);
         $this->get('models')->flush($order);
     }
