@@ -382,7 +382,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
             case '4.0.0':
                 // Next release
                 $entityManager = $this->get('models');
-                $stripePaymentCardMethod = $entityManager->getRepository('Shopware\\Models\\Payment\\Payment')->findOneBy([
+                $stripePaymentCardMethod = $entityManager->getRepository(PaymentMethod::class)->findOneBy([
                     'name' => 'stripe_payment_card',
                 ]);
                 if ($stripePaymentCardMethod) {
