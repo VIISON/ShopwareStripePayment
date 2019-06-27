@@ -160,7 +160,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
         }
 
         // Update the cleared date
-        $order = $this->get('models')->getRepository('Shopware\\Models\\Order\\Order')->findOneBy([
+        $order = $this->get('models')->getRepository(Order::class)->findOneBy([
             'number' => $orderNumber,
         ]);
         $order->setClearedDate(new \DateTime());
