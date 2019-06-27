@@ -389,7 +389,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                     $stripePaymentCardMethod->setAction('StripePaymentIntent');
                     $entityManager->flush($stripePaymentCardMethod);
                 }
-                $stripePaymentCard3DSecureMethod = $entityManager->getRepository('Shopware\\Models\\Payment\\Payment')->findOneBy([
+                $stripePaymentCard3DSecureMethod = $entityManager->getRepository(PaymentMethod::class)->findOneBy([
                     'name' => 'stripe_payment_card_three_d_secure',
                 ]);
                 if ($stripePaymentCard3DSecureMethod) {
