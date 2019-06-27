@@ -10,6 +10,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 }
 
 use Shopware\Models\Config\Element;
+use Shopware\Models\Payment\Payment as PaymentMethod;
 use Shopware\Plugins\StripePayment\Classes\SmartyPlugins;
 use Shopware\Plugins\StripePayment\Subscriber;
 use Symfony\Component\Filesystem\Exception\IOException;
