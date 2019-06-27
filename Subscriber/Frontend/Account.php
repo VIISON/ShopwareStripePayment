@@ -35,6 +35,8 @@ class Account implements SubscriberInterface
     {
         return [
             'Enlight_Controller_Action_PostDispatchSecure_Frontend_Account' => 'onPostDispatchSecure',
+            'Enlight_Controller_Action_PostDispatchSecure_Frontend_StripePaymentAccount' => 'onPostDispatchSecure',
+            'Enlight_Controller_Action_PostDispatchSecure_Widgets_Checkout' => 'onPostDispatchSecure',
         ];
     }
 
