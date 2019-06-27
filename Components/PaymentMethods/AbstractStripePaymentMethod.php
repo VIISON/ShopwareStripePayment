@@ -11,7 +11,7 @@ use ShopwarePlugin\PaymentMethods\Components\GenericPaymentMethod;
 
 abstract class AbstractStripePaymentMethod extends GenericPaymentMethod
 {
-    use StripePaymentMethodTrait;
+    use StripePaymentPreparation;
 
     /**
      * Returns the source that shall be used to create a Stripe charge during checkout.

@@ -7,27 +7,13 @@
 
 use Shopware\Components\CSRFWhitelistAware;
 use Shopware\Models\Order\Order;
-use Shopware\Plugins\StripePayment\Controllers\StripePaymentTrait;
+use Shopware\Models\Order\Status;
+use Shopware\Plugins\StripePayment\Controllers\StripeCheckout;
 use Shopware\Plugins\StripePayment\Util;
 
 class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_Frontend_Payment implements CSRFWhitelistAware
 {
-    use StripePaymentTrait;
-
-    /**
-     * The ID of the order payment status 'completely paid'
-     */
-    const PAYMENT_STATUS_COMPLETELY_PAID = 12;
-
-    /**
-     * The ID of the order payment status 'open'
-     */
-    const PAYMENT_STATUS_OPEN = 17;
-
-    /**
-     * The ID of the order payment status 'review necessary'
-     */
-    const PAYMENT_STATUS_REVIEW_NECESSARY = 21;
+    use StripeCheckout;
 
     /**
      * @inheritdoc
@@ -279,7 +265,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         $orderNumber = $this->saveOrder(
             $charge->id, // transactionId
             $charge->source->id, // paymentUniqueId
-            ($charge->status === 'succeeded') ? self::PAYMENT_STATUS_COMPLETELY_PAID : self::PAYMENT_STATUS_OPEN // paymentStatusId
+            ($charge->status === 'succeeded') ? Status::PAYMENT_STATE_COMPLETELY_PAID : Status::PAYMENT_STATE_OPEN // paymentStatusId
         );
         if (!$orderNumber) {
             // Order creation failed
@@ -331,7 +317,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         if (!$order) {
             return;
         }
-        $paymentStatus = $this->get('models')->find('Shopware\\Models\\Order\\Status', self::PAYMENT_STATUS_REVIEW_NECESSARY);
+        $paymentStatus = $this->get('models')->find('Shopware\\Models\\Order\\Status', Status::PAYMENT_STATE_REVIEW_NECESSARY);
         $order->setPaymentStatus($paymentStatus);
         $this->get('models')->flush($order);
     }
@@ -348,7 +334,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         if (!$order) {
             return;
         }
-        $paymentStatus = $this->get('models')->find('Shopware\\Models\\Order\\Status', self::PAYMENT_STATUS_COMPLETELY_PAID);
+        $paymentStatus = $this->get('models')->find('Shopware\\Models\\Order\\Status', Status::PAYMENT_STATE_COMPLETELY_PAID);
         $order->setPaymentStatus($paymentStatus);
         $this->get('models')->flush($order);
     }

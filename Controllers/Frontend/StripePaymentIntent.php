@@ -5,32 +5,14 @@
 // its contents or parts thereof without express permission by the copyright
 // holder, unless otherwise permitted by law.
 
-use Shopware\Components\CSRFWhitelistAware;
 use Shopware\Models\Order\Order;
-use Shopware\Plugins\StripePayment\Controllers\StripePaymentTrait;
+use Shopware\Models\Order\Status;
+use Shopware\Plugins\StripePayment\Controllers\StripeCheckout;
 use Shopware\Plugins\StripePayment\Util;
 
-class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Controllers_Frontend_Payment implements CSRFWhitelistAware
+class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Controllers_Frontend_Payment
 {
-    use StripePaymentTrait;
-
-    /**
-     * The ID of the order payment status 'completely paid'
-     */
-    const PAYMENT_STATUS_COMPLETELY_PAID = 12;
-
-    /**
-     * The ID of the order payment status 'open'
-     */
-    const PAYMENT_STATUS_OPEN = 17;
-
-    /**
-     * @inheritdoc
-     */
-    public function getWhitelistedCSRFActions()
-    {
-        return [];
-    }
+    use StripeCheckout;
 
     /**
      * Creates a paymentIntent using the selected Stripe payment method class and completes its payment
@@ -170,7 +152,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
         $orderNumber = $this->saveOrder(
             $paymentIntent->charges->data[0]->id, // transactionId
             $paymentIntent->payment_method, // paymentUniqueId
-            ($paymentIntent->status === 'succeeded') ? self::PAYMENT_STATUS_COMPLETELY_PAID : self::PAYMENT_STATUS_OPEN // paymentStatusId
+            ($paymentIntent->status === 'succeeded') ? Status::PAYMENT_STATE_COMPLETELY_PAID : Status::PAYMENT_STATE_OPEN // paymentStatusId
         );
         if (!$orderNumber) {
             // Order creation failed

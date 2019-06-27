@@ -10,7 +10,7 @@ namespace Shopware\Plugins\StripePayment\Controllers;
 use Shopware\Models\Order\Order;
 use Shopware\Plugins\StripePayment\Util;
 
-trait StripePaymentTrait
+trait StripeCheckout
 {
     /**
      * @return int

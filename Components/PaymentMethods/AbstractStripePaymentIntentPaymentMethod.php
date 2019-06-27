@@ -12,7 +12,7 @@ use Stripe;
 
 abstract class AbstractStripePaymentIntentPaymentMethod extends GenericPaymentMethod
 {
-    use StripePaymentMethodTrait;
+    use StripePaymentPreparation;
 
     /**
      * Returns the paymentIntent that shall be used to create a Stripe charge during checkout.
