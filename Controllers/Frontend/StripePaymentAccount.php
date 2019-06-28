@@ -64,20 +64,20 @@ class Shopware_Controllers_Frontend_StripePaymentAccount extends Shopware_Contro
      */
     public function deleteCardAction()
     {
+        Util::initStripeAPI();
         $stripeSession = Util::getStripeSession();
         try {
-            // Determine the ID of the card that shall be deleted
             $cardId = $this->Request()->getParam('cardId');
             if (!$cardId) {
-                throw new Exception('Missing field "cardId".');
+                throw new Exception('Missing parameter "cardId".');
             }
-            // Get the Stripe customer
-            $customer = Util::getStripeCustomer();
-            if (!$customer) {
-                throw new Exception('Customer not found.');
+
+            $paymentMethod = Stripe\PaymentMethod::retrieve($cardId);
+            if (!$paymentMethod) {
+                throw new Exception('Card not found.');
             }
-            // Delete the card with the given id from Stripe
-            $customer->sources->retrieve($cardId)->delete();
+
+            $paymentMethod->detach();
         } catch (Exception $e) {
             $stripeSession->accountError = $this->get('snippets')->getNamespace('frontend/plugins/stripe_payment/account')->get('credit_cards/error/delete_card', 'Failed to delete credit card.');
         }
