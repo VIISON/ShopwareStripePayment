@@ -10,15 +10,9 @@
             {elseif $payment_mean.class == "StripePaymentBancontact"}
                 <div class="panel--td stripe-payment-provider-logo bancontact"></div>
             {elseif $payment_mean.class == "StripePaymentCard"}
-                {if $payment_mean.name == "stripe_payment_card_three_d_secure"}
-                    <div class="panel--td stripe-payment-provider-logo verified-by-visa"></div>
-                    <div class="panel--td stripe-payment-provider-logo mastercard-secure-code"></div>
-                    <div class="panel--td stripe-payment-provider-logo american-express-safe-key"></div>
-                {else}
-                    <div class="panel--td stripe-payment-provider-logo visa"></div>
-                    <div class="panel--td stripe-payment-provider-logo mastercard"></div>
-                    <div class="panel--td stripe-payment-provider-logo american-express"></div>
-                {/if}
+                <div class="panel--td stripe-payment-provider-logo visa"></div>
+                <div class="panel--td stripe-payment-provider-logo mastercard"></div>
+                <div class="panel--td stripe-payment-provider-logo american-express"></div>
             {elseif $payment_mean.class == "StripePaymentGiropay"}
                 <div class="panel--td stripe-payment-provider-logo giropay"></div>
             {elseif $payment_mean.class == "StripePaymentIdeal"}
