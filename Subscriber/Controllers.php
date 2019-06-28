@@ -36,9 +36,10 @@ class Controllers implements SubscriberInterface
         return [
             'Enlight_Controller_Dispatcher_ControllerPath_Backend_StripePayment' => 'onGetControllerPath',
             'Enlight_Controller_Dispatcher_ControllerPath_Frontend_StripePayment' => 'onGetControllerPath',
+            'Enlight_Controller_Dispatcher_ControllerPath_Frontend_StripePaymentAccount' => 'onGetControllerPath',
             'Enlight_Controller_Dispatcher_ControllerPath_Frontend_StripePaymentApplePay' => 'onGetControllerPath',
             'Enlight_Controller_Dispatcher_ControllerPath_Frontend_StripePaymentCard' => 'onGetControllerPath',
-            'Enlight_Controller_Dispatcher_ControllerPath_Frontend_StripePaymentAccount' => 'onGetControllerPath',
+            'Enlight_Controller_Dispatcher_ControllerPath_Frontend_StripePaymentIntent' => 'onGetControllerPath',
         ];
     }
 

@@ -1,7 +1,7 @@
 {extends file="parent:frontend/checkout/change_payment.tpl"}
 
 {block name="frontend_checkout_payment_fieldset_description"}
-    {if $Controller != "account" && $payment_mean.action == "StripePayment" && $stripePayment.showPaymentProviderLogos}
+    {if $Controller != "account" && ($payment_mean.action == "StripePayment" || $payment_mean.action == "StripePaymentIntent") && $stripePayment.showPaymentProviderLogos}
         {* Inject the payment logos before the additional description *}
         <div class="panel--table stripe-payment-provider-logos">
             <div class="panel--tr">
@@ -10,15 +10,9 @@
             {elseif $payment_mean.class == "StripePaymentBancontact"}
                 <div class="panel--td stripe-payment-provider-logo bancontact"></div>
             {elseif $payment_mean.class == "StripePaymentCard"}
-                {if $payment_mean.name == "stripe_payment_card_three_d_secure"}
-                    <div class="panel--td stripe-payment-provider-logo verified-by-visa"></div>
-                    <div class="panel--td stripe-payment-provider-logo mastercard-secure-code"></div>
-                    <div class="panel--td stripe-payment-provider-logo american-express-safe-key"></div>
-                {else}
-                    <div class="panel--td stripe-payment-provider-logo visa"></div>
-                    <div class="panel--td stripe-payment-provider-logo mastercard"></div>
-                    <div class="panel--td stripe-payment-provider-logo american-express"></div>
-                {/if}
+                <div class="panel--td stripe-payment-provider-logo visa"></div>
+                <div class="panel--td stripe-payment-provider-logo mastercard"></div>
+                <div class="panel--td stripe-payment-provider-logo american-express"></div>
             {elseif $payment_mean.class == "StripePaymentGiropay"}
                 <div class="panel--td stripe-payment-provider-logo giropay"></div>
             {elseif $payment_mean.class == "StripePaymentIdeal"}

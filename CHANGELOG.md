@@ -1,3 +1,14 @@
+## NEXT MAJOR RELEASE
+
+### en
+
+* The plugin now complies with Strong Customer Authentication (SCA).
+
+### de
+
+* Das Plugin erfüllt nun die Anforderungen für Strong Customer Authentication (SCA).
+
+
 ## 4.0.0
 
 ### en

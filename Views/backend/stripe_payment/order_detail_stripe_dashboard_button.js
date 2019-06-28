@@ -40,7 +40,8 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.Overview.StripeDashboa
      */
     createPaymentTemplate: function() {
         // Check for stripe payment
-        if (this.record.getPayment().first() && this.record.getPayment().first().raw.action === 'StripePayment') {
+        var paymentMethod = this.record.getPayment().first();
+        if (paymentMethod && (paymentMethod.raw.action === 'StripePayment' || paymentMethod.raw.action === 'StripePaymentIntent')) {
             // Use the custom template
             return new Ext.XTemplate(
                 '{literal}<tpl for=".">',

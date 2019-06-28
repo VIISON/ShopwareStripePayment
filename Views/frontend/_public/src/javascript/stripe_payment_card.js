@@ -269,8 +269,10 @@ var StripePaymentCard = {
 
         // Send the credit card information to Stripe
         me.setSubmitButtonsLoading();
-        me.stripeClient.createToken(me.stripeElements[0], {
-            name: me.formEl('.stripe-card-holder').val()
+        me.stripeClient.createPaymentMethod('card', me.stripeElements[0], {
+            billing_details: {
+                name: me.formEl('.stripe-card-holder').val(),
+            },
         }).then(function(result) {
             if (result.error) {
                 // Only reset the submit buttons in case of an error, because otherwise the form is submitted again
@@ -282,8 +284,9 @@ var StripePaymentCard = {
                 me.handleStripeError(me.snippets.error.title + ': ' + message);
             } else {
                 // Save the card information
-                var card = result.token.card;
-                card.token_id = result.token.id;
+                var card = result.paymentMethod.card;
+                card.id = result.paymentMethod.id;
+                card.name = me.formEl('.stripe-card-holder').val();
                 me.setSelectedCard(card);
 
                 // Save whether to save the credit card for future checkouts

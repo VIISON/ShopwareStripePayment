@@ -40,7 +40,7 @@ class Util
 
         // Set API version manually to make all plugin versions working, no matter which
         // version is selected in the Stripe app settings
-        Stripe\Stripe::setApiVersion('2016-07-06');
+        Stripe\Stripe::setApiVersion('2019-05-16');
 
         // Set some plugin info that will be added to every Stripe request
         $defaultShop = Shopware()->Models()->getRepository('Shopware\\Models\\Shop\\Shop')->getActiveDefault();
@@ -82,20 +82,24 @@ class Util
             return [];
         }
 
-        // Get information about all card sources
-        $cardSources = array_filter($customer->sources->data, function ($source) {
-            return $source->type === 'card';
-        });
-        $cards = array_map(function ($source) {
-            return [
-                'id' => $source->id,
-                'name' => $source->owner->name,
-                'brand' => $source->card->brand,
-                'last4' => $source->card->last4,
-                'exp_month' => $source->card->exp_month,
-                'exp_year' => $source->card->exp_year,
-            ];
-        }, $cardSources);
+        // Get information about all card payment methods
+        $cardPaymentMethods = Stripe\PaymentMethod::all([
+            'customer' => $customer->id,
+            'type' => 'card',
+        ])->data;
+        $cards = array_map(
+            function ($paymentMethod) {
+                return [
+                    'id' => $paymentMethod->id,
+                    'name' => $paymentMethod->billing_details->name,
+                    'brand' => $paymentMethod->card->brand,
+                    'last4' => $paymentMethod->card->last4,
+                    'exp_month' => $paymentMethod->card->exp_month,
+                    'exp_year' => $paymentMethod->card->exp_year,
+                ];
+            },
+            $cardPaymentMethods
+        );
 
         // Sort the cards by id (which correspond to the date, the card was created/added)
         usort($cards, function ($cardA, $cardB) {
@@ -202,6 +206,7 @@ class Util
         // Create a new Stripe customer and save it in the user's attributes
         try {
             self::$stripeCustomer = Stripe\Customer::create([
+                'name' => self::getCustomerName(),
                 'description' => self::getCustomerName(),
                 'email' => $customer->getEmail(),
                 'metadata' => [
