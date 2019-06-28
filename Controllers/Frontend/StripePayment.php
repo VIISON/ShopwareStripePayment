@@ -125,7 +125,8 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
             $this->cancelCheckout($message);
 
             return;
-        } elseif ($source->status !== 'chargeable') {
+        }
+        if ($source->status !== 'chargeable') {
             $message = $this->getStripePaymentMethod()->getSnippet('payment_error/message/redirect/source_not_chargeable');
             $this->cancelCheckout($message);
 
@@ -257,11 +258,10 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
      */
     protected function saveOrderWithCharge(Stripe\Charge $charge)
     {
-        // Save the payment details in the order. Use the source_id as the paymentUniqueId,
-        // because altough the column in the backend order list is named 'Transaktion' or 'tranaction',
-        // it displays NOT the transactionId, but the field 'temporaryID', to which the paymentUniqueId
-        // is written. Additionally the balance_transaction is displayed in the shop owner's Stripe
-        // account, so it can be used to easily identify an order.
+        // Save the payment details in the order. Use the source ID as the paymentUniqueId, because altough the column
+        // in the backend order list is named 'Transaktion' or 'tranaction', it displays NOT the transactionId, but the
+        // field 'temporaryID', to which the paymentUniqueId is written. Additionally the balance_transaction is
+        // displayed in the shop owner's Stripe account, so it can be used to easily identify an order.
         $orderNumber = $this->saveOrder(
             $charge->id, // transactionId
             $charge->source->id, // paymentUniqueId
@@ -289,20 +289,6 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         }
 
         return $order;
-    }
-
-    /**
-     * Returns an instance of a Stripe payment method, which is used e.g. to create
-     * stripe sources.
-     *
-     * @return Shopware\Plugins\StripePayment\Components\PaymentMethods\AbstractStripePaymentMethod
-     */
-    protected function getStripePaymentMethod()
-    {
-        $paymentMethod = $this->get('session')->sOrderVariables->sPayment;
-        $adminModule = $this->get('modules')->Admin();
-
-        return $adminModule->sInitiatePaymentClass($paymentMethod);
     }
 
     /**

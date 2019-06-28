@@ -19,11 +19,12 @@ class Card extends AbstractStripePaymentIntentPaymentMethod
     {
         Util::initStripeAPI();
 
-        // Determine the card source
+        // Determine the card
         $stripeSession = Util::getStripeSession();
         if (!$stripeSession->selectedCard || !isset($stripeSession->selectedCard['id'])) {
             throw new \Exception($this->getSnippet('payment_error/message/no_card_selected'));
         }
+
         $stripeCustomer = Util::getStripeCustomer();
         if (!$stripeCustomer) {
             $stripeCustomer = Util::createStripeCustomer();
@@ -32,7 +33,7 @@ class Card extends AbstractStripePaymentIntentPaymentMethod
         $userEmail = $user['additional']['user']['email'];
         $customerNumber = $user['additional']['user']['customernumber'];
 
-        // Use the token to create a new Stripe card source
+        // Use the token to create a new Stripe card payment intend
         $paymentIntentConfig = [
             'amount' => $amountInCents,
             'currency' => $currencyCode,
@@ -45,6 +46,7 @@ class Card extends AbstractStripePaymentIntentPaymentMethod
         if ($this->includeStatmentDescriptorInCharge()) {
             $paymentIntentConfig['statement_descriptor'] = mb_substr($this->getStatementDescriptor(), 0, 22);
         }
+
         // Enable receipt emails, if configured
         $sendReceiptEmails = $this->get('plugins')->get('Frontend')->get('StripePayment')->Config()->get('sendStripeChargeEmails');
         if ($sendReceiptEmails) {
@@ -77,7 +79,7 @@ class Card extends AbstractStripePaymentIntentPaymentMethod
      */
     public function includeStatmentDescriptorInCharge()
     {
-        // Card sources can be reused several times and hence should contain a statement descriptor in charge
+        // Card payment methods can be reused several times and hence should contain a statement descriptor in charge
         return true;
     }
 

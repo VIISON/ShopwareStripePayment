@@ -12,7 +12,8 @@ use Shopware\Plugins\StripePayment\Util;
 trait StripePaymentPreparation
 {
     /**
-     * Should return true, if the payment method supports charges of their sources to contain a statement descriptor.
+     * Should return true, if the payment method supports charges of their sources/payment intents to contain a
+     * statement descriptor.
      *
      * @return boolean
      */

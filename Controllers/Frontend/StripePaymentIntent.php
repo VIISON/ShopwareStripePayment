@@ -24,7 +24,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
     {
         $stripeSession = Util::getStripeSession();
 
-        // Create a source using the selected Stripe payment method
+        // Create a payment intent using the selected Stripe payment method
         try {
             $paymentIntent = $this->getStripePaymentMethod()->createStripePaymentIntent(
                 $this->getAmountInCents(),
@@ -60,7 +60,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
             $stripeSession->redirectClientSecret = $paymentIntent->client_secret;
             $this->redirect($paymentIntent->next_action->redirect_to_url->url);
         } elseif ($paymentIntent->status === 'succeeded') {
-            // No special flow required, hence use the source to create the charge and save the order
+            // No special flow required, hence use the payment intent to create the charge and save the order
             try {
                 $order = $this->saveOrderWithPaymentIntent($paymentIntent);
             } catch (Exception $e) {
@@ -105,7 +105,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
             return;
         }
 
-        // Try to get the Stripe source
+        // Try to get the Stripe payment intent
         $paymentIntentId = $this->Request()->getParam('payment_intent');
         $paymentIntent = Stripe\PaymentIntent::retrieve($paymentIntentId);
         if (!$paymentIntent) {
@@ -113,7 +113,8 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
             $this->cancelCheckout($message);
 
             return;
-        } elseif ($paymentIntent->status !== 'succeeded') {
+        }
+        if ($paymentIntent->status !== 'succeeded') {
             $message = $this->getStripePaymentMethod()->getSnippet('payment_error/message/redirect/source_not_chargeable');
             if ($paymentIntent->last_payment_error && $paymentIntent->last_payment_error->code) {
                 $message = ($this->getStripePaymentMethod()->getSnippet('error/' . $paymentIntent->last_payment_error->code)) ?: $message;
@@ -123,7 +124,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
             return;
         }
 
-        // Use the source to create the charge and save the order
+        // Use the payment intent to create the charge and save the order
         try {
             $order = $this->saveOrderWithPaymentIntent($paymentIntent);
         } catch (Exception $e) {
@@ -176,19 +177,5 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
         }
 
         return $order;
-    }
-
-    /**
-     * Returns an instance of a Stripe payment method, which is used e.g. to create
-     * stripe paymentIntents.
-     *
-     * @return Shopware\Plugins\StripePayment\Components\PaymentMethods\AbstractStripePaymentIntentPaymentMethod
-     */
-    protected function getStripePaymentMethod()
-    {
-        $paymentMethod = $this->get('session')->sOrderVariables->sPayment;
-        $adminModule = $this->get('modules')->Admin();
-
-        return $adminModule->sInitiatePaymentClass($paymentMethod);
     }
 }

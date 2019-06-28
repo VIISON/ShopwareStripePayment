@@ -21,6 +21,20 @@ trait StripeCheckout
     }
 
     /**
+     * Returns an instance of a Stripe payment method, which is used e.g. to create
+     * stripe sources.
+     *
+     * @return Shopware\Plugins\StripePayment\Components\PaymentMethods\AbstractStripePaymentMethod
+     */
+    protected function getStripePaymentMethod()
+    {
+        $paymentMethod = $this->get('session')->sOrderVariables->sPayment;
+        $adminModule = $this->get('modules')->Admin();
+
+        return $adminModule->sInitiatePaymentClass($paymentMethod);
+    }
+
+    /**
      * Finishes the checkout process by redirecting to the checkout's finish page. By passing the
      * 'paymentUniqueId' (aka 'temporaryID') to 'sUniqueID', we allow an early return of the 'Checkout'
      * controller's 'finishAction()'. The order is created by calling 'saveOrder()' on this controller

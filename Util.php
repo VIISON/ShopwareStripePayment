@@ -82,21 +82,24 @@ class Util
             return [];
         }
 
-        // Get information about all card sources
-        $cardSources = Stripe\PaymentMethod::all([
+        // Get information about all card payment methods
+        $cardPaymentMethods = Stripe\PaymentMethod::all([
             'customer' => $customer->id,
             'type' => 'card',
         ])->data;
-        $cards = array_map(function ($source) {
-            return [
-                'id' => $source->id,
-                'name' => $source->billing_details->name,
-                'brand' => $source->card->brand,
-                'last4' => $source->card->last4,
-                'exp_month' => $source->card->exp_month,
-                'exp_year' => $source->card->exp_year,
-            ];
-        }, $cardSources);
+        $cards = array_map(
+            function ($paymentMethod) {
+                return [
+                    'id' => $paymentMethod->id,
+                    'name' => $paymentMethod->billing_details->name,
+                    'brand' => $paymentMethod->card->brand,
+                    'last4' => $paymentMethod->card->last4,
+                    'exp_month' => $paymentMethod->card->exp_month,
+                    'exp_year' => $paymentMethod->card->exp_year,
+                ];
+            },
+            $cardPaymentMethods
+        );
 
         // Sort the cards by id (which correspond to the date, the card was created/added)
         usort($cards, function ($cardA, $cardB) {
