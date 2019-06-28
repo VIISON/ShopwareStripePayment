@@ -1,7 +1,7 @@
 {extends file="parent:frontend/checkout/change_payment.tpl"}
 
 {block name="frontend_checkout_payment_fieldset_description"}
-    {if $Controller != "account" && $payment_mean.action == "StripePayment" && $stripePayment.showPaymentProviderLogos}
+    {if $Controller != "account" && ($payment_mean.action == "StripePayment" || $payment_mean.action == "StripePaymentIntent") && $stripePayment.showPaymentProviderLogos}
         {* Inject the payment logos before the additional description *}
         <div class="panel--table stripe-payment-provider-logos">
             <div class="panel--tr">
