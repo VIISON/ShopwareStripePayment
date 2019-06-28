@@ -3,10 +3,12 @@
 ### en
 
 * The plugin now complies with Strong Customer Authentication (SCA).
+* Fixes a bug that could prevent the credit card management from being visible in the account overview.
 
 ### de
 
 * Das Plugin erfüllt nun die Anforderungen für Strong Customer Authentication (SCA).
+* Behebt einen Fehler, der unter Umständen dazu führte, dass die Kreditkartenverwaltung nicht in der Kontoübersicht angezeigt wurde.
 
 
 ## 4.0.0
