@@ -77,25 +77,15 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
     {
         switch ($oldVersion) {
             case 'install':
-                // Check for any Stripe payment methods
-                $builder = $this->get('models')->createQueryBuilder();
-                $builder->select('payment')
-                        ->from('Shopware\\Models\\Payment\\Payment', 'payment')
-                        ->where('payment.name LIKE \'stripe_payment%\'');
-                $stripePaymentMethods = $builder->getQuery()->getResult();
-                if (count($stripePaymentMethods) === 0) {
-                    // No Stripe payment methods exist yet, hence create the (old) stripe payment method,
-                    // which will be migrated in a later step
-                    $this->createPayment([
-                        'active' => 0,
-                        'name' => 'stripe_payment',
-                        'description' => 'Kreditkarte (via Stripe)',
-                        'template' => 'stripe_payment.tpl',
-                        'action' => 'stripe_payment',
-                        'class' => 'StripePaymentMethod',
-                        'additionalDescription' => '',
-                    ]);
-                }
+                // Add static event subscribers to make sure the plugin is always loaded
+                $this->subscribeEvent(
+                    'Enlight_Controller_Front_StartDispatch',
+                    'onStartDispatch'
+                );
+                $this->subscribeEvent(
+                    'Shopware_Console_Add_Command',
+                    'onAddConsoleCommand'
+                );
 
                 // Add a config element for the stripe secret key
                 $this->Form()->setElement(
@@ -103,8 +93,9 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                     'stripeSecretKey',
                     [
                         'label' => 'Stripe Secret Key',
-                        'description' => 'Tragen Sie hier Ihren geheimen Schlüssel ("Secret Key") ein. Diesen finden Sie im Stripe Dashboard unter "Account Settings" > "API Keys" im Feld "Live Secret Key".',
+                        'description' => 'Tragen Sie hier Ihren geheimen Schlüssel ("Secret Key") ein. Diesen finden Sie im Stripe Dashboard unter "API" im Feld "Live Secret Key".',
                         'value' => '',
+                        'scope' => Element::SCOPE_SHOP,
                     ]
                 );
                 // Add a config element for the stripe public key
@@ -113,42 +104,11 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                     'stripePublicKey',
                     [
                         'label' => 'Stripe Publishable Key',
-                        'description' => 'Tragen Sie hier Ihren öffentlichen Schlüssel ("Publishable Key") ein. Diesen finden Sie im Stripe Dashboard unter "Account Settings" > "API Keys" im Feld "Live Publishable Key".',
+                        'description' => 'Tragen Sie hier Ihren öffentlichen Schlüssel ("Publishable Key") ein. Diesen finden Sie im Stripe Dashboard unter "API" im Feld "Live Publishable Key".',
                         'value' => '',
+                        'scope' => Element::SCOPE_SHOP,
                     ]
                 );
-
-                // Add an attribute to the user for storing the Stripe customer id
-                $this->addColumnIfNotExists('s_user_attributes', 'stripe_customer_id', 'varchar(255) DEFAULT NULL');
-
-                // Rebuild the user attributes model
-                $this->get('models')->generateAttributeModels([
-                    's_user_attributes'
-                ]);
-            case '1.0.0':
-                // Nothing to do
-            case '1.0.1':
-                // Nothing to do
-            case '1.0.2':
-                // Nothing to do
-            case '1.0.3':
-                // Nothing to do
-            case '1.0.4':
-                // Nothing to do
-            case '1.0.5':
-                // Nothing to do
-            case '1.0.6':
-                // Nothing to do
-            case '1.0.7':
-                // Nothing to do
-            case '1.0.8':
-                // Nothing to do
-            case '1.0.9':
-                $this->get('models')->persist($this->Form());
-                // Set the scope of all config elements to 'shop'
-                foreach ($this->Form()->getElements() as $element) {
-                    $element->setScope(Element::SCOPE_SHOP);
-                }
                 // Add a config element for showing/hiding the 'save credit card' checkbox for card payment methods
                 $this->Form()->setElement(
                     'checkbox',
@@ -160,156 +120,17 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                         'scope' => Element::SCOPE_SHOP,
                     ]
                 );
-            case '1.1.0':
-                // Add static event subscriber to make sure the plugin is loaded upon running console commands
-                $this->subscribeEvent(
-                    'Shopware_Console_Add_Command',
-                    'onAddConsoleCommand'
+                // Add a config element for showing/hiding the payment provider logos
+                $this->Form()->setElement(
+                    'checkbox',
+                    'showPaymentProviderLogos',
+                    [
+                        'label' => 'Logos der Zahlungsarten anzeigen',
+                        'description' => 'Aktivieren Sie diese Feld, um in der Liste der verfügbaren Zahlungsarten die Logos der von diesem Plugin zur Verfügung gestellten Zahlungsarten anzuzeigen.',
+                        'value' => true,
+                        'scope' => Element::SCOPE_SHOP,
+                    ]
                 );
-            case '1.1.1':
-                $this->get('models')->persist($this->Form());
-                // Update descriptions of config elements
-                $this->Form()->getElement('stripeSecretKey')->setDescription('Tragen Sie hier Ihren geheimen Schlüssel ("Secret Key") ein. Diesen finden Sie im Stripe Dashboard unter "API" im Feld "Live Secret Key".');
-                $this->Form()->getElement('stripePublicKey')->setDescription('Tragen Sie hier Ihren öffentlichen Schlüssel ("Publishable Key") ein. Diesen finden Sie im Stripe Dashboard unter "API" im Feld "Live Publishable Key".');
-                // Add static event subscriber on the earliest event possible
-                $this->subscribeEvent(
-                    'Enlight_Controller_Front_StartDispatch',
-                    'onStartDispatch'
-                );
-                // Clear all stripe customer IDs from the user accountes to remove references to now incompatible
-                // stripe cards
-                $this->get('db')->query(
-                    'UPDATE s_user_attributes
-                    SET stripe_customer_id = NULL'
-                );
-                // Rename the original payment method to 'stripe_payment_card'
-                $stripePaymentMethod = $this->get('models')->getRepository('Shopware\\Models\\Payment\\Payment')->findOneBy([
-                    'name' => 'stripe_payment',
-                ]);
-                if ($stripePaymentMethod) {
-                    $stripePaymentMethod->setName('stripe_payment_card');
-                    $stripePaymentMethod->setTemplate('stripe_payment_card.tpl');
-                    $stripePaymentMethod->setClass('StripePaymentCard');
-                    $stripePaymentMethod->setAction('StripePayment');
-                    $this->get('models')->flush($stripePaymentMethod);
-                }
-                // Add a payment method for credit card payments with 3D-Secure
-                $this->createPayment([
-                    'active' => 0,
-                    'name' => 'stripe_payment_card_three_d_secure',
-                    'description' => 'Kreditkarte (mit 3D-Secure, via Stripe)',
-                    'template' => 'stripe_payment_card.tpl',
-                    'action' => 'StripePayment',
-                    'class' => 'StripePaymentCard',
-                    'additionalDescription' => '',
-                ]);
-                // Add a payment method for SOFORT payments
-                $this->createPayment([
-                    'active' => 0,
-                    'name' => 'stripe_payment_sofort',
-                    'description' => 'SOFORT Überweisung (via Stripe)',
-                    'template' => '',
-                    'action' => 'StripePayment',
-                    'class' => 'StripePaymentSofort',
-                    'additionalDescription' => '',
-                ]);
-                // Add a payment method for iDEAL payments
-                $this->createPayment([
-                    'active' => 0,
-                    'name' => 'stripe_payment_ideal',
-                    'description' => 'iDEAL (via Stripe)',
-                    'template' => '',
-                    'action' => 'StripePayment',
-                    'class' => 'StripePaymentIdeal',
-                    'additionalDescription' => '',
-                ]);
-                // Add a payment method for Bancontact payments
-                $this->createPayment([
-                    'active' => 0,
-                    'name' => 'stripe_payment_bancontact',
-                    'description' => 'Bancontact (via Stripe)',
-                    'template' => '',
-                    'action' => 'StripePayment',
-                    'class' => 'StripePaymentBancontact',
-                    'additionalDescription' => '',
-                ]);
-                // Add a payment method for Giropay payments
-                $this->createPayment([
-                    'active' => 0,
-                    'name' => 'stripe_payment_giropay',
-                    'description' => 'Giropay (via Stripe)',
-                    'template' => '',
-                    'action' => 'StripePayment',
-                    'class' => 'StripePaymentGiropay',
-                    'additionalDescription' => '',
-                ]);
-                // Add a payment method for SEPA payments
-                $this->createPayment([
-                    'active' => 0,
-                    'name' => 'stripe_payment_sepa',
-                    'description' => 'SEPA-Lastschrift (via Stripe)',
-                    'template' => 'stripe_payment_sepa.tpl',
-                    'action' => 'StripePayment',
-                    'class' => 'StripePaymentSepa',
-                    'additionalDescription' => '',
-                ]);
-                // Add a payment method for Apple Pay payments
-                $this->createPayment([
-                    'active' => 0,
-                    'name' => 'stripe_payment_apple_pay',
-                    'description' => 'Apple Pay (via Stripe)',
-                    'template' => '',
-                    'action' => 'StripePayment',
-                    'class' => 'StripePaymentApplePay',
-                    'additionalDescription' => '',
-                ]);
-            case '2.0.0':
-                // Nothing to do
-            case '2.0.1':
-                // Find duplicate order numbers created since the release of v2.0.0
-                $duplicateOrderNumbers = $this->get('db')->fetchCol(
-                    'SELECT ordernumber
-                    FROM s_order
-                    WHERE ordernumber != 0
-                    AND ordertime > \'2017-03-15 00:00:00\'
-                    GROUP BY ordernumber
-                    HAVING COUNT(id) > 1'
-                );
-                $orderModule = $this->get('modules')->Order();
-                foreach ($duplicateOrderNumbers as $orderNumber) {
-                    // Change the order number of all but the oldest orders having the same order number
-                    $orderIds = $this->get('db')->fetchCol(
-                        'SELECT id
-                        FROM s_order
-                        WHERE ordernumber = :orderNumber',
-                        [
-                            'orderNumber' => $orderNumber,
-                        ]
-                    );
-                    array_shift($orderIds);
-                    foreach ($orderIds as $orderId) {
-                        // Generate a new order number and save it both in the order and its details
-                        $newOrderNumber = $orderModule->sGetOrderNumber();
-                        $this->get('db')->query(
-                            'UPDATE s_order o
-                            INNER JOIN s_order_details od
-                                ON od.orderID = o.id
-                            SET o.ordernumber = :newOrderNumber, od.ordernumber = :newOrderNumber
-                            WHERE o.id = :orderId',
-                            [
-                                'orderId' => $orderId,
-                                'newOrderNumber' => $newOrderNumber,
-                            ]
-                        );
-                    }
-                }
-            case '2.0.2':
-                // Nothing to do
-            case '2.0.3':
-                // Nothing to do
-            case '2.0.4':
-                // Nothing to do
-            case '2.0.5':
                 // Add a config element for the custom statement descriptor suffix
                 $this->Form()->setElement(
                     'text',
@@ -322,37 +143,95 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                         'maxLength' => 23,
                     ]
                 );
-            case '2.0.6':
-                // Add a config element for showing/hiding the payment provider logos
-                $this->Form()->setElement(
-                    'checkbox',
-                    'showPaymentProviderLogos',
-                    [
-                        'label' => 'Logos der Zahlungsarten anzeigen',
-                        'description' => 'Aktivieren Sie diese Feld, um in der Liste der verfügbaren Zahlungsarten die Logos der von diesem Plugin zur Verfügung gestellten Zahlungsarten anzuzeigen.',
-                        'value' => true,
-                        'scope' => Element::SCOPE_SHOP,
-                    ]
-                );
-            case '2.1.0':
-                // Remove all single quote escaping from stripe snippets in the database
-                $this->get('db')->query(
-                    "UPDATE s_core_snippets
-                    SET value = REPLACE(value, '\\\\\'', '\'')
-                    WHERE namespace LIKE '%stripe_payment%'"
-                );
-            case '2.1.1':
-                // Nothing to do
-            case '2.1.2':
-                // Nothing to do
-            case '2.1.3':
-                // Nothing to do
-            case '2.1.4':
-                // Nothing to do
-            case '2.2.0':
-                // Nothing to do
-            case '2.2.1':
-                // Nothing to do
+
+                // Add an attribute to the user for storing the Stripe customer id
+                $this->addColumnIfNotExists('s_user_attributes', 'stripe_customer_id', 'varchar(255) DEFAULT NULL');
+
+                // Rebuild the user attributes model
+                $this->get('models')->generateAttributeModels([
+                    's_user_attributes'
+                ]);
+
+                // Add an inactive payment method for credit card payments
+                $this->createPaymentMethodIfNotExists([
+                    'name' => 'stripe_payment_card',
+                    'description' => 'Kreditkarte (via Stripe)',
+                    'template' => 'stripe_payment_card.tpl',
+                    'action' => 'StripePayment',
+                    'class' => 'StripePaymentCard',
+                    'additionalDescription' => '',
+                    'active' => false,
+                ]);
+                // Add an inactive payment method for credit card payments with 3D-Secure
+                $this->createPaymentMethodIfNotExists([
+                    'name' => 'stripe_payment_card_three_d_secure',
+                    'description' => 'Kreditkarte (mit 3D-Secure, via Stripe)',
+                    'template' => 'stripe_payment_card.tpl',
+                    'action' => 'StripePayment',
+                    'class' => 'StripePaymentCard',
+                    'additionalDescription' => '',
+                    'active' => false,
+                ]);
+                // Add an inactive payment method for SOFORT payments
+                $this->createPaymentMethodIfNotExists([
+                    'name' => 'stripe_payment_sofort',
+                    'description' => 'SOFORT Überweisung (via Stripe)',
+                    'template' => '',
+                    'action' => 'StripePayment',
+                    'class' => 'StripePaymentSofort',
+                    'additionalDescription' => '',
+                    'active' => false,
+                ]);
+                // Add an inactive payment method for iDEAL payments
+                $this->createPaymentMethodIfNotExists([
+                    'name' => 'stripe_payment_ideal',
+                    'description' => 'iDEAL (via Stripe)',
+                    'template' => '',
+                    'action' => 'StripePayment',
+                    'class' => 'StripePaymentIdeal',
+                    'additionalDescription' => '',
+                    'active' => false,
+                ]);
+                // Add an inactive payment method for Bancontact payments
+                $this->createPaymentMethodIfNotExists([
+                    'name' => 'stripe_payment_bancontact',
+                    'description' => 'Bancontact (via Stripe)',
+                    'template' => '',
+                    'action' => 'StripePayment',
+                    'class' => 'StripePaymentBancontact',
+                    'additionalDescription' => '',
+                    'active' => false,
+                ]);
+                // Add an inactive payment method for Giropay payments
+                $this->createPaymentMethodIfNotExists([
+                    'name' => 'stripe_payment_giropay',
+                    'description' => 'Giropay (via Stripe)',
+                    'template' => '',
+                    'action' => 'StripePayment',
+                    'class' => 'StripePaymentGiropay',
+                    'additionalDescription' => '',
+                    'active' => false,
+                ]);
+                // Add an inactive payment method for SEPA payments
+                $this->createPaymentMethodIfNotExists([
+                    'name' => 'stripe_payment_sepa',
+                    'description' => 'SEPA-Lastschrift (via Stripe)',
+                    'template' => 'stripe_payment_sepa.tpl',
+                    'action' => 'StripePayment',
+                    'class' => 'StripePaymentSepa',
+                    'additionalDescription' => '',
+                    'active' => false,
+                ]);
+                // Add an inactive payment method for Apple Pay payments
+                $this->createPaymentMethodIfNotExists([
+                    'name' => 'stripe_payment_apple_pay',
+                    'description' => 'Apple Pay (via Stripe)',
+                    'template' => '',
+                    'action' => 'StripePayment',
+                    'class' => 'StripePaymentApplePay',
+                    'additionalDescription' => '',
+                    'active' => false,
+                ]);
             case '3.0.0':
                 // Nothing to do
             case '3.0.1':
@@ -537,6 +416,16 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
         );
 
         return $hasColumn === '1';
+    }
+
+    private function createPaymentMethodIfNotExists(array $paymentMethodValues)
+    {
+        $existingPaymentMethod = $this->get('models')->getRepository(PaymentMethod::class)->findOneBy([
+            'name' => $paymentMethodValues['name'],
+        ]);
+        if (!$existingPaymentMethod) {
+            $this->createPayment($paymentMethodValues);
+        }
     }
 
     /**

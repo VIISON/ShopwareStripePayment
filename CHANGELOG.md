@@ -2,11 +2,15 @@
 
 ### en
 
+**Note:** In order to update to this version you need to have at least version 3.0.0 of the plugin installed. Reinstallations are possible at any time.
+
 * The plugin now complies with Strong Customer Authentication (SCA).
 * Changes the 'save credit card' checkbox in the payment method selection from opt-out to opt-in.
 * Fixes a bug that could prevent the credit card management from being visible in the account overview.
 
 ### de
+
+**Hinweis:** Um auf diese Version aktualisieren zu können, muss mindestens Version 3.0.0 des Plugins installiert sein. Neuinstallationen sind jederzeit möglich.
 
 * Das Plugin erfüllt nun die Anforderungen für Strong Customer Authentication (SCA).
 * Passt die Checkbox "Kreditkarte speichern" in der Auswahl der Zahlungsarten an, sodass diese nun standardmäßig nicht aktiviert ist.
