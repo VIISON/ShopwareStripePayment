@@ -4,7 +4,7 @@
 
 **Note:** In order to update to this version you need to have at least version 3.0.0 of the plugin installed. Reinstallations are possible at any time.
 
-* The plugin now complies with Strong Customer Authentication (SCA).
+* The plugin now complies with Strong Customer Authentication (SCA) which is part of the forthcoming PSD2, coming into force on 14 September 2019. This currently effects credit card payments only and changes if and when 3D Secure mechanisms are triggered, which is now solely controlled by Stripe's fraud detection and prevention as well as the credit card issuer. [More information about SCA and PSD2](https://stripe.com/gb/guides/strong-customer-authentication).
 * Changes the 'save credit card' checkbox in the payment method selection from opt-out to opt-in.
 * Fixes a bug that could prevent the credit card management from being visible in the account overview.
 
@@ -12,7 +12,7 @@
 
 **Hinweis:** Um auf diese Version aktualisieren zu können, muss mindestens Version 3.0.0 des Plugins installiert sein. Neuinstallationen sind jederzeit möglich.
 
-* Das Plugin erfüllt nun die Anforderungen für Strong Customer Authentication (SCA).
+* Das Plugin erfüllt nun die Anforderungen für Strong Customer Authentication (SCA) als Teil der bevorstehenden PSD2-Richtlinie, welche am 14. September 2019 in Kraft treten wird. Dies betrifft zur Zeit nur Kreditkartenzahlungen und steuert ob und wann 3D Secure-Mechanismen ausgelöst werden. Letzteres wird ab sofort nur noch von Stripes Betrugserkennung und -verhinderung sowie dem ausgebenden Institut der Kreditkarte gesteuert. [Weitere Informationen zu SCA und PSD2 (Englisch)](https://stripe.com/de/guides/strong-customer-authentication).
 * Passt die Checkbox "Kreditkarte speichern" in der Auswahl der Zahlungsarten an, sodass diese nun standardmäßig nicht aktiviert ist.
 * Behebt einen Fehler, der unter Umständen dazu führte, dass die Kreditkartenverwaltung nicht in der Kontoübersicht angezeigt wurde.
 
