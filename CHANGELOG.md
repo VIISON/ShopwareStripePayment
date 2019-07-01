@@ -1,4 +1,4 @@
-## NEXT MAJOR RELEASE
+## 5.0.0
 
 ### en
 
