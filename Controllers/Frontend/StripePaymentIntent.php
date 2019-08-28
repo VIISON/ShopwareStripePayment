@@ -199,7 +199,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
         }
 
         try {
-            // Save the order number in the payment intends charge description
+            // Save the order number in the payment intent's charge description
             $charge->description .= ' / Order ' . $orderNumber;
             $charge->save();
         } catch (Exception $e) {
