@@ -168,7 +168,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
         $this->get('models')->flush($order);
 
         try {
-            // Save the order number in the payment intend description
+            // Save the order number in the payment intent description
             $paymentIntent->description .= ' / Order ' . $orderNumber;
             $paymentIntent->save();
         } catch (Exception $e) {
