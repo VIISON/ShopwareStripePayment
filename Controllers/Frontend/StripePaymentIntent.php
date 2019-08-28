@@ -168,12 +168,50 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
         $this->get('models')->flush($order);
 
         try {
-            // Save the order number in the charge description
+            // Save the order number in the payment intend description
             $paymentIntent->description .= ' / Order ' . $orderNumber;
             $paymentIntent->save();
-        } catch (Exception $e) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCATCH
-            // Ignore exceptions in this case, because the order has already been created
-            // and adding the order number is not essential for identifying the payment
+        } catch (Exception $e) {
+            $this->get('pluginlogger')->error(
+                'StripePayment: Failed to update payment intend description with order number',
+                [
+                    'exception' => $e,
+                    'trace' => $e->getTrace(),
+                    'paymentIntendId' => $paymentIntent->id,
+                    'orderId' => $order->getId(),
+                ]
+            );
+        }
+
+        $charge = count($paymentIntent->charges->data) > 0 ? $paymentIntent->charges->data[0] : null;
+        if (!$charge) {
+            $this->get('pluginlogger')->error(
+                'StripePayment: No charge found for payment intend',
+                [
+                    'exception' => $e,
+                    'trace' => $e->getTrace(),
+                    'paymentIntendId' => $paymentIntent->id,
+                ]
+            );
+
+            return $order;
+        }
+
+        try {
+            // Save the order number in the payment intends charge description
+            $charge->description .= ' / Order ' . $orderNumber;
+            $charge->save();
+        } catch (Exception $e) {
+            $this->get('pluginlogger')->error(
+                'StripePayment: Failed to update the payment intends charge description with order number',
+                [
+                    'exception' => $e,
+                    'trace' => $e->getTrace(),
+                    'paymentIntendId' => $paymentIntent->id,
+                    'chargeId' => $charge->id,
+                    'orderId' => $order->getId(),
+                ]
+            );
         }
 
         return $order;

@@ -1,3 +1,14 @@
+## NEXT PATCH RELEASE
+
+### en
+
+* Fixes a bug which could prevent the order number to be appended to the charges description.
+
+### de
+
+* Behebt einen Fehler, der unter Umständen dazu führte, dass die Bestellnummer nicht an die Transaktionen angehängt wurde.
+
+
 ## 5.1.0
 
 ### en
