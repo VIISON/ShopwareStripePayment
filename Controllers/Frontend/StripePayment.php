@@ -289,7 +289,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
                 [
                     'exception' => $e,
                     'trace' => $e->getTrace(),
-                    'paymentIntendId' => $charge->id,
+                    'chargeId' => $charge->id,
                     'orderId' => $order->getId(),
                 ]
             );
