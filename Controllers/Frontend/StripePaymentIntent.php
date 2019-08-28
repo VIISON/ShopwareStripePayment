@@ -191,6 +191,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
                     'exception' => $e,
                     'trace' => $e->getTrace(),
                     'paymentIntendId' => $paymentIntent->id,
+                    'orderId' => $order->getId(),
                 ]
             );
 
