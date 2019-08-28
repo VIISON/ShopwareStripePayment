@@ -186,7 +186,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
         $charge = count($paymentIntent->charges->data) > 0 ? $paymentIntent->charges->data[0] : null;
         if (!$charge) {
             $this->get('pluginlogger')->error(
-                'StripePayment: No charge found for payment intend',
+                'StripePayment: No charge found for payment intent',
                 [
                     'exception' => $e,
                     'trace' => $e->getTrace(),
