@@ -6,7 +6,7 @@
 
 ### de
 
-* Behebt einen Fehler, der unter Umständen dazu führte, dass die Bestellnummer nicht an die Transaktionen angehängt wurde.
+* Behebt einen Fehler, der dazu führte, dass der Beschreibung von Kreditkarten-Transaktionen nicht die Bestellnummer hinzugefügt wurde.
 
 
 ## 5.1.0
