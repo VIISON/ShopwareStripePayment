@@ -204,7 +204,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
             $charge->save();
         } catch (Exception $e) {
             $this->get('pluginlogger')->error(
-                'StripePayment: Failed to update the payment intends charge description with order number',
+                'StripePayment: Failed to update the payment intent\'s charge description with order number',
                 [
                     'exception' => $e,
                     'trace' => $e->getTrace(),
