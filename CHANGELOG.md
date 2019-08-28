@@ -2,7 +2,7 @@
 
 ### en
 
-* Fixes a bug which could prevent the order number to be appended to the charges description.
+* Fixes a bug that prevent the order number from being added to the description of credit card transactions.
 
 ### de
 
