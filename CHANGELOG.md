@@ -1,3 +1,14 @@
+## NEXT PATCH RELEASE
+
+### en
+
+* Fixes a bug that prevent the order number from being added to the description of credit card transactions.
+
+### de
+
+* Behebt einen Fehler, der dazu führte, dass der Beschreibung von Kreditkarten-Transaktionen nicht die Bestellnummer hinzugefügt wurde.
+
+
 ## 5.1.0
 
 ### en

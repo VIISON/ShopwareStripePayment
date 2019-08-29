@@ -283,9 +283,16 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
             // Save the order number in the charge description
             $charge->description .= ' / Order ' . $orderNumber;
             $charge->save();
-        } catch (Exception $e) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCATCH
-            // Ignore exceptions in this case, because the order has already been created
-            // and adding the order number is not essential for identifying the payment
+        } catch (Exception $e) {
+            $this->get('pluginlogger')->error(
+                'StripePayment: Failed to update charge description with order number',
+                [
+                    'exception' => $e,
+                    'trace' => $e->getTrace(),
+                    'chargeId' => $charge->id,
+                    'orderId' => $order->getId(),
+                ]
+            );
         }
 
         return $order;
