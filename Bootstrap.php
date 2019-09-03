@@ -286,6 +286,17 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
             case '5.1.0':
                 // Nothing to do
             case '5.1.1':
+                // Add a config element to enable MOTO transactions
+                $this->Form()->setElement(
+                    'checkbox',
+                    'enableMotoTransactions',
+                    [
+                        'label' => 'MOTO Transaktionen aktivieren',
+                        'description' => 'Aktivieren Sie diese Feld, um in MOTO Transaktionen durchzuführen, wenn man sich als Kunde über das Backend einloggt.',
+                        'value' => false,
+                        'scope' => Element::SCOPE_SHOP,
+                    ]
+                );
                 // Next release
 
                 break;
@@ -330,6 +341,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
     public function onStartDispatch()
     {
         $this->get('events')->addSubscriber(new Subscriber\Payment());
+        $this->get('events')->addSubscriber(new Subscriber\Backend\Customer($this));
         $this->get('events')->addSubscriber(new Subscriber\Backend\Index($this));
         $this->get('events')->addSubscriber(new Subscriber\Backend\Order($this));
         $this->get('events')->addSubscriber(new Subscriber\Controllers($this));

@@ -1,3 +1,14 @@
+## NEXT MINOR RELEASE
+
+### en
+
+* Adds support for "Mail Order / Telephone Order" (MOTO) transactions through the backend.
+
+### de
+
+* Fügt die Unterstützung für "Mail Order / Telephone Order" (MOTO) Transaktionen über das Backend hinzu.
+
+
 ## 5.1.1
 
 ### en
