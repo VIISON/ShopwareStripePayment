@@ -341,7 +341,6 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
     public function onStartDispatch()
     {
         $this->get('events')->addSubscriber(new Subscriber\Payment());
-        $this->get('events')->addSubscriber(new Subscriber\Backend\Customer($this));
         $this->get('events')->addSubscriber(new Subscriber\Backend\Index($this));
         $this->get('events')->addSubscriber(new Subscriber\Backend\Order($this));
         $this->get('events')->addSubscriber(new Subscriber\Controllers($this));

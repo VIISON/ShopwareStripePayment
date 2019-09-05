@@ -71,7 +71,8 @@ class Card extends AbstractStripePaymentIntentPaymentMethod
             'return_url' => $returnUrl,
         ];
         $enableMotoTransactions = $this->get('plugins')->get('Frontend')->get('StripePayment')->Config()->get('enableMotoTransactions');
-        if ($enableMotoTransactions && Util::getStripeSession()->isMotoTransaction) {
+        $isAdminRequest = isset($this->get('session')->Admin) && $this->get('session')->Admin === true;
+        if ($isAdminRequest && $enableMotoTransactions) {
             $paymentIntentConfirmConfig['payment_method_options'] = [
                 'card' => [
                     'moto' => true,
