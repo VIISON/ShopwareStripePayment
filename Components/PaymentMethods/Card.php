@@ -33,12 +33,18 @@ class Card extends AbstractStripePaymentIntentPaymentMethod
         $userEmail = $user['additional']['user']['email'];
         $customerNumber = $user['additional']['user']['customernumber'];
 
-        // Use the token to create a new Stripe card payment intend
+        // Use the token to create a new Stripe card payment intent
+        $returnUrl = $this->assembleShopwareUrl([
+            'controller' => 'StripePaymentIntent',
+            'action' => 'completeRedirectFlow',
+        ]);
         $paymentIntentConfig = [
             'amount' => $amountInCents,
             'currency' => $currencyCode,
             'payment_method' => $stripeSession->selectedCard['id'],
             'confirmation_method' => 'automatic',
+            'confirm' => true,
+            'return_url' => $returnUrl,
             'metadata' => $this->getSourceMetadata(),
             'customer' => $stripeCustomer->id,
             'description' => sprintf('%s / Customer %s', $userEmail, $customerNumber),
@@ -47,11 +53,22 @@ class Card extends AbstractStripePaymentIntentPaymentMethod
             $paymentIntentConfig['statement_descriptor'] = mb_substr($this->getStatementDescriptor(), 0, 22);
         }
 
+        // Enable MOTO transaction, if configured and order is placed by shop admin (aka has logged in via backend)
+        $pluginConfig = $this->get('plugins')->get('Frontend')->get('StripePayment')->Config();
+        $isAdminRequest = isset($this->get('session')->Admin) && $this->get('session')->Admin === true;
+        if ($isAdminRequest && $pluginConfig->get('allowMotoTransactions')) {
+            $paymentIntentConfig['payment_method_options'] = [
+                'card' => [
+                    'moto' => true,
+                ],
+            ];
+        }
+
         // Enable receipt emails, if configured
-        $sendReceiptEmails = $this->get('plugins')->get('Frontend')->get('StripePayment')->Config()->get('sendStripeChargeEmails');
-        if ($sendReceiptEmails) {
+        if ($pluginConfig->get('sendStripeChargeEmails')) {
             $paymentIntentConfig['receipt_email'] = $userEmail;
         }
+
         if ($stripeSession->saveCardForFutureCheckouts) {
             // Add the card to the Stripe customer
             $paymentIntentConfig['save_payment_method'] = $stripeSession->saveCardForFutureCheckouts;
@@ -62,24 +79,6 @@ class Card extends AbstractStripePaymentIntentPaymentMethod
         if (!$paymentIntent) {
             throw new \Exception($this->getSnippet('payment_error/message/transaction_not_found'));
         }
-
-        $returnUrl = $this->assembleShopwareUrl([
-            'controller' => 'StripePaymentIntent',
-            'action' => 'completeRedirectFlow',
-        ]);
-        $paymentIntentConfirmConfig = [
-            'return_url' => $returnUrl,
-        ];
-        $enableMotoTransactions = $this->get('plugins')->get('Frontend')->get('StripePayment')->Config()->get('enableMotoTransactions');
-        $isAdminRequest = isset($this->get('session')->Admin) && $this->get('session')->Admin === true;
-        if ($isAdminRequest && $enableMotoTransactions) {
-            $paymentIntentConfirmConfig['payment_method_options'] = [
-                'card' => [
-                    'moto' => true,
-                ],
-            ];
-        }
-        $paymentIntent->confirm($paymentIntentConfirmConfig);
 
         return $paymentIntent;
     }

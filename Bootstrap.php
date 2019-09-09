@@ -286,18 +286,17 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
             case '5.1.0':
                 // Nothing to do
             case '5.1.1':
-                // Add a config element to enable MOTO transactions
+                // Add a config element to allow MOTO transactions
                 $this->Form()->setElement(
                     'checkbox',
-                    'enableMotoTransactions',
+                    'allowMotoTransactions',
                     [
-                        'label' => 'MOTO Transaktionen aktivieren',
-                        'description' => 'Aktivieren Sie diese Feld, um in MOTO Transaktionen durchzuführen, wenn man sich als Kunde über das Backend einloggt.',
+                        'label' => 'MOTO-Transaktionen erlauben',
+                        'description' => 'Aktivieren Sie diese Feld, um zu erlauben, dass in diesem Subshop MOTO-Transaktionen durchgeführt werden können, indem man sich als Kunde über das Backend einloggt.',
                         'value' => false,
                         'scope' => Element::SCOPE_SHOP,
                     ]
                 );
-                // Next release
 
                 break;
             default:
