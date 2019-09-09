@@ -298,6 +298,8 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                         'scope' => Element::SCOPE_SHOP,
                     ]
                 );
+            case '5.2.0':
+                // Next release
 
                 break;
             default:

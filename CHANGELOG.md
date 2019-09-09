@@ -1,4 +1,4 @@
-## NEXT MINOR RELEASE
+## 5.2.0
 
 ### en
 
