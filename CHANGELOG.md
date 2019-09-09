@@ -2,11 +2,11 @@
 
 ### en
 
-* Adds support for "Mail Order / Telephone Order" (MOTO) transactions through the backend.
+* Adds support for "Mail Order / Telephone Order" (MOTO) transactions, which are excluded from SCA (must be enabled in the plugin configuration).
 
 ### de
 
-* Fügt die Unterstützung für "Mail Order / Telephone Order" (MOTO) Transaktionen über das Backend hinzu.
+* Fügt die Unterstützung für "Mail Order / Telephone Order" (MOTO) Transaktionen hinzu, welche von SCA ausgenommen sind (muss in der Plugin-Konfiguration aktiviert werden).
 
 
 ## 5.1.1
