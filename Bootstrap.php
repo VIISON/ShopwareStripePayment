@@ -11,6 +11,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 
 use Shopware\Models\Config\Element;
 use Shopware\Models\Payment\Payment as PaymentMethod;
+use Shopware\Plugins\StripePayment\Classes\ConfigFormInstallationHelper;
 use Shopware\Plugins\StripePayment\Classes\SmartyPlugins;
 use Shopware\Plugins\StripePayment\Subscriber;
 use Symfony\Component\Filesystem\Exception\IOException;
@@ -92,8 +93,8 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                     'text',
                     'stripeSecretKey',
                     [
-                        'label' => 'Stripe Secret Key',
-                        'description' => 'Tragen Sie hier Ihren geheimen Schlüssel ("Secret Key") ein. Diesen finden Sie im Stripe Dashboard unter "API" im Feld "Live Secret Key".',
+                        'label' => 'Geheimer Stripe-API-Schlüssel',
+                        'description' => 'Tragen Sie hier Ihren geheimen Stripe-API-Schlüssel ("Secret key") ein. Diesen finden Sie im Stripe-Dashboard unter "Entwickler" > "API-Schlüssel" im Feld "Geheimschlüssel". Bitte stellen Sie sicher, dass Sie den "Live-API-Schlüssel" verwenden, um Zahlung akzeptieren zu können.',
                         'value' => '',
                         'scope' => Element::SCOPE_SHOP,
                     ]
@@ -103,8 +104,8 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                     'text',
                     'stripePublicKey',
                     [
-                        'label' => 'Stripe Publishable Key',
-                        'description' => 'Tragen Sie hier Ihren öffentlichen Schlüssel ("Publishable Key") ein. Diesen finden Sie im Stripe Dashboard unter "API" im Feld "Live Publishable Key".',
+                        'label' => 'Veröffentlichbarer Stripe-API-Schlüssel',
+                        'description' => 'Tragen Sie hier Ihren öffentlichen Stripe-API-Schlüssel ("Publishable key") ein. Diesen finden Sie im Stripe-Dashboard unter "Entwickler" > "API-Schlüssel" im Feld "Veröffentlichbarer Schlüssel". Bitte stellen Sie sicher, dass Sie den "Live-API-Schlüssel" verwenden, um Zahlung akzeptieren zu können.',
                         'value' => '',
                         'scope' => Element::SCOPE_SHOP,
                     ]
@@ -115,7 +116,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                     'allowSavingCreditCard',
                     [
                         'label' => '"Kreditkarte speichern" anzeigen',
-                        'description' => 'Aktivieren Sie diese Feld, um beim Bezahlvorgang das Speichern der Kreditkarte zu erlauben',
+                        'description' => 'Aktivieren Sie diese Feld, um beim Bezahlvorgang das Speichern der Kreditkarte zu erlauben.',
                         'value' => true,
                         'scope' => Element::SCOPE_SHOP,
                     ]
@@ -304,6 +305,9 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
         }
 
         $this->removeObsoletePluginFiles();
+
+        $configFormInstallationHelper = new ConfigFormInstallationHelper($this->get('models'));
+        $configFormInstallationHelper->updateElementTranslations($this->Form(), (__DIR__ . '/plugin_config_form.ini'));
 
         return [
             'success' => true,
