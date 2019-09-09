@@ -308,6 +308,18 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
 
         $configFormInstallationHelper = new ConfigFormInstallationHelper($this->get('models'));
         $configFormInstallationHelper->updateElementTranslations($this->Form(), (__DIR__ . '/plugin_config_form.ini'));
+        $configFormInstallationHelper->updateOrderOfFormElements(
+            $this->Form(),
+            [
+                'stripeSecretKey',
+                'stripePublicKey',
+                'sendStripeChargeEmails',
+                'statementDescriptorSuffix',
+                'allowMotoTransactions',
+                'allowSavingCreditCard',
+                'showPaymentProviderLogos',
+            ]
+        );
 
         return [
             'success' => true,

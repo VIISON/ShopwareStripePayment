@@ -35,6 +35,29 @@ class ConfigFormInstallationHelper
     }
 
     /**
+     * Sort the $form elements of a form in the order given by $formElementOrder
+     *
+     * @param Form $form
+     * @param string[] $formElementOrder The names of the form elements in the order they should be sorted to
+     */
+    public function updateOrderOfFormElements(Form $form, array $formElementOrder)
+    {
+        // Force the array to be an array with numeric elements
+        $formElementOrder = array_values($formElementOrder);
+        foreach ($formElementOrder as $position => $formElementName) {
+            $formElement = $form->getElement($formElementName);
+            if (!$formElement) {
+                continue;
+            }
+            $formElement->setPosition($position);
+        }
+        // This persist call is needed to prevent ORMInvalidArgumentExceptions ("A new entity was found through the
+        // relationship ...") in the fresh installation scenario
+        $this->modelManager->persist($form);
+        $this->modelManager->flush($form);
+    }
+
+    /**
      * Sets the translations of all elements of a form from a snippet-like ini file. The ini-file format looks like
      * this:
      *
