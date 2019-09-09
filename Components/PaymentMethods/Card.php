@@ -53,7 +53,7 @@ class Card extends AbstractStripePaymentIntentPaymentMethod
             $paymentIntentConfig['statement_descriptor'] = mb_substr($this->getStatementDescriptor(), 0, 22);
         }
 
-        // Enable MOTO transaction, if configured and order is placed by shop admin (aka has logged in via backend)
+        // Enable MOTO transaction, if configured and order is placed by shop admin (aka user has logged in via backend)
         $pluginConfig = $this->get('plugins')->get('Frontend')->get('StripePayment')->Config();
         $isAdminRequest = isset($this->get('session')->Admin) && $this->get('session')->Admin === true;
         if ($isAdminRequest && $pluginConfig->get('allowMotoTransactions')) {
