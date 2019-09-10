@@ -245,7 +245,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                     'sendStripeChargeEmails',
                     [
                         'label' => 'Stripe-Belege via E-Mail versenden',
-                        'description' => 'Aktivieren Sie diese Feld, damit Stripe automatisch Zahlungsbelege an den Kunden zu senden.',
+                        'description' => 'Aktivieren Sie diese Feld, um automatisch Stripe-Zahlungsbelege per E-Mail an den Kunden zu versenden.',
                         'value' => false,
                         'scope' => Element::SCOPE_SHOP,
                     ]
