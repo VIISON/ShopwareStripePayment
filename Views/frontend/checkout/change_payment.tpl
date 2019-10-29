@@ -21,6 +21,8 @@
                 <div class="panel--td stripe-payment-provider-logo sepa"></div>
             {elseif $payment_mean.class == "StripePaymentSofort"}
                 <div class="panel--td stripe-payment-provider-logo sofort"></div>
+            {elseif $payment_mean.class == "StripePaymentKlarna"}
+                <div class="panel--td stripe-payment-provider-logo klarna"></div>
             {/if}
             </div>
         </div>

@@ -299,6 +299,16 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                     ]
                 );
             case '5.2.0':
+                // Add an inactive payment method for Klarna payments
+                $this->createPaymentMethodIfNotExists([
+                    'name' => 'stripe_payment_klarna',
+                    'description' => 'Klarna (via Stripe)',
+                    'template' => '',
+                    'action' => 'StripePayment',
+                    'class' => 'StripePaymentKlarna',
+                    'additionalDescription' => '',
+                    'active' => false,
+                ]);
                 // Next release
 
                 break;
