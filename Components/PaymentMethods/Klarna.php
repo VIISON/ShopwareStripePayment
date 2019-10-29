@@ -30,7 +30,7 @@ class Klarna extends AbstractStripePaymentMethod
             'currency' => $currencyCode,
             'amount' => round($basket['sAmountTax'] * 100),
         ];
-        $shipping = [S
+        $shipping = [
             'type' => 'shipping',
             'description' => 'Shipping',
             'currency' => $currencyCode,
