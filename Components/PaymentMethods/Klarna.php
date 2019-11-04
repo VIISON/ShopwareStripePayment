@@ -50,14 +50,33 @@ class Klarna extends AbstractStripePaymentMethod
         $items[] = $tax;
         $items[] = $shipping;
 
+        $customer = Util::getCustomer();
+
         $source = Stripe\Source::create([
             'type' => 'klarna',
-            'flow' => 'redirect',
             'amount' => $amountInCents,
             'currency' => $currencyCode,
+            'flow' => 'redirect',
+            'owner' => [
+                'name' => Util::getCustomerName(),
+                'email' => $customer->getEmail(),
+                'address' => [
+                    'line1' => $customer->getDefaultBillingAddress()->getStreet(),
+                    'line2' => '',
+                    'city' => $customer->getDefaultBillingAddress()->getCity(),
+                    'state' => $customer->getDefaultBillingAddress()->getState()->getName(),
+                    'postal_code' => $customer->getDefaultBillingAddress()->getZipcode(),
+                    'country' => $this->get('session')->sOrderVariables->sCountry['countryiso'],
+                ],
+            ],
             'klarna' => [
+                'first_name' => $customer->getFirstname(),
+                'last_name' => $customer->getLastname(),
                 'product' => 'payment',
                 'purchase_country' => $this->get('session')->sOrderVariables->sCountry['countryiso'],
+                'shipping_first_name' => $customer->getFirstname(),
+                'shipping_last_name' => $customer->getLastname(),
+                'locale' => 'de-DE',
             ],
             'source_order' => [
                 'items' => array_values($items),
