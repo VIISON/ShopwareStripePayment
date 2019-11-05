@@ -24,6 +24,7 @@ class Klarna extends AbstractStripePaymentMethod
             'action' => 'completeRedirectFlow',
         ]);
         $basket = $this->get('session')->sOrderVariables->sBasket;
+        $userData = $this->get('session')->sOrderVariables->sUserData;
         $tax = [
             'type' => 'tax',
             'description' => 'Taxes',
@@ -61,12 +62,12 @@ class Klarna extends AbstractStripePaymentMethod
                 'name' => Util::getCustomerName(),
                 'email' => $customer->getEmail(),
                 'address' => [
-                    'line1' => $customer->getDefaultBillingAddress()->getStreet(),
+                    'line1' => $userData['billingaddress']['street'],
                     'line2' => '',
-                    'city' => $customer->getDefaultBillingAddress()->getCity(),
-                    'state' => $customer->getDefaultBillingAddress()->getState()->getName(),
-                    'postal_code' => $customer->getDefaultBillingAddress()->getZipcode(),
-                    'country' => $this->get('session')->sOrderVariables->sCountry['countryiso'],
+                    'city' => $userData['billingaddress']['city'],
+                    'state' => $userData['additional']['state']['name'],
+                    'postal_code' => $userData['billingaddress']['zipcode'],
+                    'country' => $userData['additional']['country']['countryiso'],
                 ],
             ],
             'klarna' => [
