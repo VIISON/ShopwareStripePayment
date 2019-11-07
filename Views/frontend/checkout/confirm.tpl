@@ -5,9 +5,9 @@
 
     {include file="frontend/checkout/stripe_payment_error.tpl"}
 
-    {if $sUserData.additional.payment.class == "StripePaymentApplePay"}
+    {if $sUserData.additional.payment.class == "StripePaymentDigitalWalletPayments"}
         {* Add a hidden error message component *}
-        <div id="stripe-payment-apple-pay-error-box" class="alert is--error is--rounded" style="display: none;">
+        <div id="stripe-payment-payment-request-api-error-box" class="alert is--error is--rounded" style="display: none;">
             <div class="alert--icon">
                 <i class="icon--element icon--cross"></i>
             </div>
@@ -43,7 +43,7 @@
                 element.insertAfter('.payment--panel .payment--content .payment--method-info');
             });
         </script>
-    {elseif $sUserData.additional.payment.class == "StripePaymentApplePay"}
+    {elseif $sUserData.additional.payment.class == "StripePaymentDigitalWalletPayments"}
         {* Include and set up the Stripe SDK *}
         <script type="text/javascript" src="https://js.stripe.com/v3/"></script>
         <script type="text/javascript">
@@ -51,31 +51,48 @@
              * Uncomment the following line the speed up development by including the custom
              * Stripe payment library instead of loading it from the compiled Javascript file.
              *}
-            {* {include file="frontend/_public/src/javascript/stripe_payment_apple_pay.js"} *}
+            {* {include file="frontend/_public/src/javascript/stripe_payment_digital_wallet_payments.js"} *}
 
             document.stripeJQueryReady(function() {
                 // Define the StripePaymentApplePay configuration
                 var stripePublicKey = '{$stripePayment.publicKey}';
-                var stripePaymentApplePaySnippets = {
+                var stripePaymentSnippets = {
                     error: {
-                        connectionNotSecure: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/apple_pay name=error/connection_not_secure}{/stripe_snippet}',
-                        invalidConfig: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/apple_pay name=error/invalid_config}{/stripe_snippet}',
-                        notAvailable: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/apple_pay name=error/not_available}{/stripe_snippet}',
-                        paymentCancelled: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/apple_pay name=error/payment_cancelled}{/stripe_snippet}',
-                        title: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/apple_pay name=error/title}{/stripe_snippet}',
-                    }
+                        connectionNotSecure: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallet_payments name=error/connection_not_secure}{/stripe_snippet}',
+                        invalidConfig: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallet_payments name=error/invalid_config}{/stripe_snippet}',
+                        notAvailable: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallet_payments name=error/not_available}{/stripe_snippet}',
+                        paymentCancelled: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallet_payments name=error/payment_cancelled}{/stripe_snippet}',
+                        title: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallet_payments name=error/title}{/stripe_snippet}',
+                    },
+                    shippingCost: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallet_payments name=shipping_cost}{/stripe_snippet}',
                 };
-                var stripePaymentApplePayConfig = {
+                var paymentMethod = '{$sUserData.additional.payment.name}'.replace('stripe_payment_', '');
+                switch (paymentMethod) {
+                    case 'apple_pay':
+                        stripePaymentSnippets.error.connectionNotSecure = stripePaymentSnippets.error.connectionNotSecure.replace('[0]', 'Apple Pay');
+                        stripePaymentSnippets.error.invalidConfig = stripePaymentSnippets.error.invalidConfig.replace('[0]', 'Apple Pay');
+                        stripePaymentSnippets.error.notAvailable = stripePaymentSnippets.error.notAvailable.replace('[0]', 'Apple Pay');
+                        break;
+                    case 'google_pay':
+                        stripePaymentSnippets.error.connectionNotSecure = stripePaymentSnippets.error.connectionNotSecure.replace('[0]', 'Google Pay');
+                        stripePaymentSnippets.error.invalidConfig = stripePaymentSnippets.error.invalidConfig.replace('[0]', 'Google Pay');
+                        stripePaymentSnippets.error.notAvailable = stripePaymentSnippets.error.notAvailable.replace('[0]', 'Google Pay');
+                        break;
+                }
+
+                var stripePaymentConfig = {
                     countryCode: '{$sUserData.additional.country.countryiso}',
                     currencyCode: '{$stripePayment.currency}',
-                    statementDescriptor: '{$stripePayment.applePayStatementDescriptor}',
+                    statementDescriptor: '{$stripePayment.digitalWalletPaymentsStatementDescriptor}',
                     amount: '{$sAmount}',
+                    basketContent: {$sBasket.content|json_encode},
+                    shippingCost: {$sBasket.sShippingcosts},
                 };
 
-                // Initialize StripePaymentApplePay once the DOM is ready
+                // Initialize StripePaymentDigitalWalletPayments once the DOM is ready
                 $(document).ready(function() {
-                    StripePaymentApplePay.snippets = stripePaymentApplePaySnippets;
-                    StripePaymentApplePay.init(stripePublicKey, stripePaymentApplePayConfig);
+                    StripePaymentDigitalWalletPayments.snippets = stripePaymentSnippets;
+                    StripePaymentDigitalWalletPayments.init(stripePublicKey, stripePaymentConfig, paymentMethod);
                 });
             });
         </script>

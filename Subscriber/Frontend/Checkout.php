@@ -83,11 +83,11 @@ class Checkout implements SubscriberInterface
             }
 
             $session = Shopware()->Container()->get('session');
-            if ($actionName === 'confirm' && $session->sOrderVariables->sPayment['class'] === 'StripePaymentApplePay') {
+            if ($actionName === 'confirm' && $session->sOrderVariables->sPayment['class'] === 'StripePaymentDigitalWalletPayments') {
                 // Add the payment method's statement descriptor to the view
                 $modules = Shopware()->Container()->get('modules');
                 $paymentMethod = $modules->Admin()->sInitiatePaymentClass($session->sOrderVariables->sPayment);
-                $stripeViewParams['applePayStatementDescriptor'] = $paymentMethod->getStatementDescriptor();
+                $stripeViewParams['digitalWalletPaymentsStatementDescriptor'] = $paymentMethod->getStatementDescriptor();
             }
 
             // Add name of SEPA creditor (company or shop name as fallback)
@@ -176,15 +176,15 @@ class Checkout implements SubscriberInterface
         if ($request->getParam('stripeSepaSource')) {
             $stripeSession->sepaSource = json_decode($request->getParam('stripeSepaSource'), true);
         }
-        if ($request->getParam('stripeApplePayToken')) {
-            $stripeSession->applePayToken = $request->getParam('stripeApplePayToken');
+        if ($request->getParam('stripePaymentMethodId')) {
+            $stripeSession->paymentMethodId = $request->getParam('stripePaymentMethodId');
         }
 
         // Reset parts of the stripe session, if no stripe payment method is selected
         if ($request->getParam('payment')) {
             $selectedPaymentMethod = Shopware()->Container()->get('models')->find('Shopware\\Models\\Payment\\Payment', $request->getParam('payment'));
-            if ($selectedPaymentMethod && $selectedPaymentMethod->getAction() !== 'StripePayment') {
-                unset($stripeSession->applePayToken);
+            if ($selectedPaymentMethod && $selectedPaymentMethod->getAction() !== 'StripePaymentIntent') {
+                unset($stripeSession->paymentMethodId);
             }
         }
     }

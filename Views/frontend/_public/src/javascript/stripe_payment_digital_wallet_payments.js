@@ -5,23 +5,33 @@
 // holder, unless otherwise permitted by law.
 
 /**
- * A common utility object for handling Apple Pay payments using Stripe.js in the StripePayment plugin.
+ * A common utility object for handling digital wallet payments using Stripe.js in the StripePayment plugin.
  */
-var StripePaymentApplePay = {
+var StripePaymentDigitalWalletPayments = {
     /**
      * The payment request containing all information for processing the payment upon checkout.
      */
     paymentRequest: null,
 
     /**
-     * A boolean indicating whether Apple Pay is available in the current browser environment.
+     * A boolean indicating whether the payment api used for digital wallet payments is available in the current browser environment.
      */
-    applePayAvailable: false,
+    paymentApiAvailable: false,
 
     /**
-     * The Stripe Apple Pay token used for completing the checkout.
+     * The selected Stripe payment method id used for completing the checkout.
      */
-    applePayToken: null,
+    paymentMethodId: null,
+
+    /**
+     * The selected payment method in the checkout flow.
+     */
+    selectedPaymentMethod: null,
+
+    /**
+     * A list of items to show in the payment requests popup.
+     */
+    paymentDisplayItems: [],
 
     /**
      * The snippets used for Stripe error descriptions.
@@ -34,33 +44,50 @@ var StripePaymentApplePay = {
             paymentCancelled: 'The payment was cancelled.',
             title: 'Error',
         },
+        shippingCost: 'Shipping cost',
     },
 
     /**
-     * Uses the Stripe client to create a new Apple Pay payment request for the passed config and adds a listener on the
-     * main form's submit button.
+     * Uses the Stripe client to create a new digital wallet payment request for the passed config and adds a listener
+     * on the main form's submit button.
      *
      * @param String stripePublicKey
      * @param Object config
+     * @param String selectedPaymentMethod
      */
-    init: function (stripePublicKey, config) {
+    init: function (stripePublicKey, config, selectedPaymentMethod) {
         var me = this;
+        this.selectedPaymentMethod = selectedPaymentMethod;
+
         // Validate config
-        if (!config.countryCode || !config.currencyCode || !config.amount) {
+        if (!config.countryCode || !config.currencyCode || !config.amount || !config.basketContent) {
             me.handleStripeError(me.snippets.error.invalidConfig);
 
             return undefined;
+        }
+
+        this.paymentDisplayItems = config.basketContent.map(function (item) {
+            return {
+                label: item.articlename,
+                amount: Math.round(item.amountNumeric * 100),
+            };
+        });
+        if (config.shippingCost) {
+            this.paymentDisplayItems.push({
+                label: this.snippets.shippingCost,
+                amount: Math.round(config.shippingCost * 100),
+            });
         }
 
         me.createPaymentRequest(
             stripePublicKey,
             config.countryCode,
             config.currencyCode,
-            config.statementDescriptor || null,
+            config.statementDescriptor || '',
             config.amount
         );
 
-        // Save the original submit button content and add a listiner on the preloader event to be able to reset it
+        // Save the original submit button content and add a listener on the preloader event to be able to reset it
         me.submitButtonContent = me.findSubmitButton().html();
         $.subscribe('plugin/swPreloaderButton/onShowPreloader', function (event, button) {
             if (me.shouldResetSubmitButton) {
@@ -74,8 +101,7 @@ var StripePaymentApplePay = {
     },
 
     /**
-     * Creates the Apple Pay payment request and evaluates whether Apple Pay is available in the current
-     * browser environment.
+     * Creates the payment request and evaluates whether the payment api is available in the current browser environment.
      *
      * @param String stripePublicKey
      * @param String countryCode
@@ -93,43 +119,55 @@ var StripePaymentApplePay = {
                 label: statementDescriptor,
                 amount: Math.round(amount * 100),
             },
+            displayItems: me.paymentDisplayItems,
         });
 
-        // Check for availability of Apple Pay
+        // Check for availability of the payment api
         me.paymentRequest.canMakePayment().then(function (result) {
-            me.applePayAvailable = result && result.applePay;
-            if (!me.applePayAvailable) {
+            if (me.selectedPaymentMethod === 'apple_pay') {
+                me.paymentApiAvailable = result && result.applePay;
+            } else {
+                me.paymentApiAvailable = !!result && !result.applePay;
+            }
+            if (!me.paymentApiAvailable) {
+                if (!me.isSecureConnection()) {
+                    me.handleStripeError(me.snippets.error.connectionNotSecure);
+
+                    return undefined;
+                }
                 me.handleStripeError(me.snippets.error.notAvailable);
             }
         });
 
-        // Add listener for Apple Pay token creation
-        me.paymentRequest.on('token', function (paymentResponse) {
-            me.applePayToken = paymentResponse.token.id;
+        // Add a listener for once the payment is created. This happens once the user selects "pay" in his browser
+        // specific payment popup
+        me.paymentRequest.on('paymentmethod', function (paymentResponse) {
+            me.paymentMethodId = paymentResponse.paymentMethod.id;
 
             // Complete the browser's payment flow
             paymentResponse.complete('success');
 
             // Add the created Stripe token to the form and submit it
             var form = me.findForm();
-            $('input[name="stripeApplePayToken"]').remove();
-            $('<input type="hidden" name="stripeApplePayToken" />')
-                .val(me.applePayToken)
+            $('input[name="stripePaymentMethodId"]').remove();
+            $('<input type="hidden" name="stripePaymentMethodId" />')
+                .val(me.paymentMethodId)
                 .appendTo(form);
             form.submit();
         });
 
         // Add listener for cancelled payment flow
         me.paymentRequest.on('cancel', function () {
-            me.applePayToken = null;
-            me.shouldResetSubmitButton = true;
+            me.paymentMethodId = null;
             me.handleStripeError(me.snippets.error.paymentCancelled);
+            me.resetSubmitButton(me.findSubmitButton());
         });
     },
 
     /**
      * First validates the form and payment state and, if the main form can be submitted, does nothing further. If
-     * however the main form cannot be submitted, because no Apple Pay token exist, the Apple Pay flow is triggered.
+     * however the main form cannot be submitted, because no paymentMethodId exist, the digital wallet payments flow
+     * is triggered.
      *
      * @param Event event
      */
@@ -143,23 +181,15 @@ var StripePaymentApplePay = {
             return undefined;
         }
 
-        // Check if a Stripe Apple Pay token was generated and hence the form can be submitted
-        if (me.applePayToken) {
+        // Check if a Stripe payment method was generated and hence the form can be submitted
+        if (me.paymentMethodId) {
             return undefined;
         }
 
-        // Prevent the form from being submitted until a new Stripe Apple Pay token is generated and received
+        // Prevent the form from being submitted until a new Stripe payment method is generated and received
         event.preventDefault();
 
-        // Check for general availability of Apple Pay
-        if (!me.applePayAvailable) {
-            me.shouldResetSubmitButton = true;
-            me.handleStripeError(me.snippets.error.notAvailable);
-
-            return undefined;
-        }
-
-        // We have to manually check whether this site is served via HTTPS before checking the Apple Pay availability
+        // We have to manually check whether this site is served via HTTPS before checking the digital wallet payments availability
         // using Stripe.js. Even though Stripe.js checks the used protocol and declines the payment if not served via
         // HTTPS, only a generic 'not available' error message is returned and the HTTPS warning is logged to the
         // console. We however want to show a specific error message that informs about the lack of security.
@@ -170,7 +200,15 @@ var StripePaymentApplePay = {
             return undefined;
         }
 
-        $('#stripe-payment-apple-pay-error-box').hide();
+        // Check for general availability of the digital wallet payments
+        if (!me.paymentApiAvailable) {
+            me.shouldResetSubmitButton = true;
+            me.handleStripeError(me.snippets.error.notAvailable);
+
+            return undefined;
+        }
+
+        $('#stripe-payment-payment-request-api-error-box').hide();
 
         // Process the payment
         me.paymentRequest.show();
@@ -191,7 +229,7 @@ var StripePaymentApplePay = {
      */
     handleStripeError: function (message) {
         // Display the error message and scroll to its position
-        var errorBox = $('#stripe-payment-apple-pay-error-box');
+        var errorBox = $('#stripe-payment-payment-request-api-error-box');
         errorBox.show().find('.error-content').html(this.snippets.error.title + ': ' + message);
         $('body').animate({
             scrollTop: (errorBox.offset().top - 50),
