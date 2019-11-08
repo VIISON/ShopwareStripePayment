@@ -81,6 +81,16 @@ class Klarna extends AbstractStripePaymentMethod
             ],
             'source_order' => [
                 'items' => array_values($items),
+                'shipping' => [
+                    'address' => [
+                        'line1' => $userData['shippingaddress']['street'],
+                        'line2' => '',
+                        'city' => $userData['shippingaddress']['city'],
+                        'state' => $userData['additional']['state']['name'],
+                        'postal_code' => $userData['shippingaddress']['zipcode'],
+                        'country' => $userData['additional']['country']['countryiso'],
+                    ],
+                ],
             ],
             'statement_descriptor' => $this->getStatementDescriptor(),
             'redirect' => [

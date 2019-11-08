@@ -126,25 +126,37 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
 
             return;
         }
-        if ($source->status !== 'chargeable') {
+
+        if ($source->status === 'chargeable') {
+            // Use the source to create the charge and save the order
+            try {
+                $charge = $this->createCharge($source);
+                $order = $this->saveOrderWithCharge($charge);
+            } catch (Exception $e) {
+                $message = $this->getStripePaymentMethod()->getErrorMessage($e);
+                $this->cancelCheckout($message);
+
+                return;
+            }
+
+            $this->finishCheckout($order);
+        } elseif ($source->status === 'pending') {
+            try {
+                $order = $this->saveOrderWithSource($source);
+            } catch (Exception $e) {
+                $message = $this->getStripePaymentMethod()->getErrorMessage($e);
+                $this->cancelCheckout($message);
+
+                return;
+            }
+
+            $this->finishCheckout($order);
+        } else {
             $message = $this->getStripePaymentMethod()->getSnippet('payment_error/message/redirect/source_not_chargeable');
             $this->cancelCheckout($message);
 
             return;
         }
-
-        // Use the source to create the charge and save the order
-        try {
-            $charge = $this->createCharge($source);
-            $order = $this->saveOrderWithCharge($charge);
-        } catch (Exception $e) {
-            $message = $this->getStripePaymentMethod()->getErrorMessage($e);
-            $this->cancelCheckout($message);
-
-            return;
-        }
-
-        $this->finishCheckout($order);
     }
 
     /**
@@ -298,6 +310,85 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         return $order;
     }
 
+    protected function saveOrderWithSource(Stripe\Source $source)
+    {
+        // Save the payment details in the order. Use the source ID as the paymentUniqueId, because altough the column
+        // in the backend order list is named 'Transaktion' or 'tranaction', it displays NOT the transactionId, but the
+        // field 'temporaryID', to which the paymentUniqueId is written. Additionally the balance_transaction is
+        // displayed in the shop owner's Stripe account, so it can be used to easily identify an order.
+        $user = $this->getUser();
+        $basket = $this->getBasket();
+
+        $order = Shopware()->Modules()->Order();
+        $order->sUserData = $user;
+        $order->sComment = Shopware()->Session()->sComment;
+        $order->sBasketData = $basket;
+        $order->sAmount = $basket['sAmount'];
+        $order->sAmountWithTax = !empty($basket['AmountWithTaxNumeric']) ? $basket['AmountWithTaxNumeric'] : $basket['AmountNumeric'];
+        $order->sAmountNet = $basket['AmountNetNumeric'];
+        $order->sShippingcosts = $basket['sShippingcosts'];
+        $order->sShippingcostsNumeric = $basket['sShippingcostsWithTax'];
+        $order->sShippingcostsNumericNet = $basket['sShippingcostsNet'];
+        $order->bookingId = '';
+        $order->dispatchId = Shopware()->Session()->sDispatch;
+        $order->sNet = empty($user['additional']['charge_vat']);
+        $order->uniqueID = $source->id;
+        $order->deviceType = $this->Request()->getDeviceType();
+        $orderNumber = $order->sSaveOrder();
+
+        if (!empty($orderNumber) && !empty($paymentStatusId)) {
+            $this->savePaymentStatus('', $source->id, Status::PAYMENT_STATE_OPEN, false);
+        }
+
+        if (!$orderNumber) {
+            // Order creation failed
+            return null;
+        }
+
+        // Update the cleared date
+        $order = $this->get('models')->getRepository('Shopware\\Models\\Order\\Order')->findOneBy([
+            'number' => $orderNumber,
+        ]);
+
+        return $order;
+    }
+
+    protected function updateOrderWithCharge(Stripe\Charge $charge)
+    {
+
+        $order = $this->get('models')->getRepository('Shopware\\Models\\Order\\Order')->findOneBy([
+            'temporaryId' => $charge->source->id,
+        ]);
+        $paymentStatus = $this->get('models')->getRepository('Shopware\\Models\\Order\\Status')->findOneBy([
+            'id' => ($charge->status === 'succeeded') ? Status::PAYMENT_STATE_COMPLETELY_PAID : Status::PAYMENT_STATE_OPEN,
+        ]);
+
+        $order->setTransactionId($charge->id);
+        $order->setPaymentStatus($paymentStatus);
+        $order->setClearedDate(new \DateTime());
+        $this->get('models')->flush($order);
+
+        $orderNumber = $order->getNumber();
+
+        try {
+            // Save the order number in the charge description
+            $charge->description .= ' / Order ' . $orderNumber;
+            $charge->save();
+        } catch (Exception $e) {
+            $this->get('pluginlogger')->error(
+                'StripePayment: Failed to update charge description with order number',
+                [
+                    'exception' => $e,
+                    'trace' => $e->getTrace(),
+                    'chargeId' => $charge->id,
+                    'orderId' => $order->getId(),
+                ]
+            );
+        }
+
+        return $order;
+    }
+
     /**
      * Tries to find the order the event belongs to and, if found, update its payment status
      * to 'review necessary'.
@@ -350,9 +441,6 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         // Check whether the webhook event is allowed to create an order
         $source = $event->data->object;
         $stripeSession = Util::getStripeSession();
-        if ($source->id !== $stripeSession->processingSourceId) {
-            return;
-        }
 
         // Wait for five seconds
         sleep(5);
@@ -361,6 +449,23 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         // a redirect
         $order = $this->findOrderForWebhookEvent($event);
         if ($order) {
+            if ($order->getTransactionId()) {
+                return;
+            }
+            $charge = $this->createCharge($event->data->object);
+            $order = $this->updateOrderWithCharge($charge);
+            $this->get('pluginlogger')->info(
+                'StripePayment: Updated order after receiving "source.chargeable" webhook event',
+                [
+                    'orderId' => $order->getId(),
+                    'eventId' => $event->id,
+                ]
+            );
+
+            return;
+        }
+
+        if ($source->id !== $stripeSession->processingSourceId) {
             return;
         }
 
