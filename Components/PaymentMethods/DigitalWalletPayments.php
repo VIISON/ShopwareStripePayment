@@ -19,7 +19,7 @@ class DigitalWalletPayments extends AbstractStripePaymentIntentPaymentMethod
     {
         Util::initStripeAPI();
 
-        // Determine the card source
+        // Determine the payment method
         $stripeSession = Util::getStripeSession();
         if (!$stripeSession->paymentMethodId) {
             throw new \Exception($this->getSnippet('payment_error/message/transaction_not_found'));
@@ -42,18 +42,17 @@ class DigitalWalletPayments extends AbstractStripePaymentIntentPaymentMethod
         $userEmail = $user['additional']['user']['email'];
         $customerNumber = $user['additional']['user']['customernumber'];
 
-        // Use the token to create a new Stripe card payment intent
-        $returnUrl = $this->assembleShopwareUrl([
-            'controller' => 'StripePaymentIntent',
-            'action' => 'completeRedirectFlow',
-        ]);
+        // Use the payment method id to create a new Stripe payment intent
         $paymentIntentConfig = [
             'amount' => $amountInCents,
             'currency' => $currencyCode,
             'payment_method' => $stripeSession->paymentMethodId,
             'confirmation_method' => 'automatic',
             'confirm' => true,
-            'return_url' => $returnUrl,
+            'return_url' => $this->assembleShopwareUrl([
+                'controller' => 'StripePaymentIntent',
+                'action' => 'completeRedirectFlow',
+            ]),
             'metadata' => $this->getSourceMetadata(),
             'description' => sprintf('%s / Customer %s', $userEmail, $customerNumber),
         ];

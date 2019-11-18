@@ -29,22 +29,21 @@ class Card extends AbstractStripePaymentIntentPaymentMethod
         if (!$stripeCustomer) {
             $stripeCustomer = Util::createStripeCustomer();
         }
-        $user = Shopware()->Session()->sOrderVariables['sUserData'];
+        $user = $this->get('session')->sOrderVariables['sUserData'];
         $userEmail = $user['additional']['user']['email'];
         $customerNumber = $user['additional']['user']['customernumber'];
 
-        // Use the token to create a new Stripe card payment intent
-        $returnUrl = $this->assembleShopwareUrl([
-            'controller' => 'StripePaymentIntent',
-            'action' => 'completeRedirectFlow',
-        ]);
+        // Use the token to create a new Stripe payment intent
         $paymentIntentConfig = [
             'amount' => $amountInCents,
             'currency' => $currencyCode,
             'payment_method' => $stripeSession->selectedCard['id'],
             'confirmation_method' => 'automatic',
             'confirm' => true,
-            'return_url' => $returnUrl,
+            'return_url' => $this->assembleShopwareUrl([
+                'controller' => 'StripePaymentIntent',
+                'action' => 'completeRedirectFlow',
+            ]),
             'metadata' => $this->getSourceMetadata(),
             'customer' => $stripeCustomer->id,
             'description' => sprintf('%s / Customer %s', $userEmail, $customerNumber),
