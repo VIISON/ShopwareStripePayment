@@ -38,7 +38,7 @@ class DigitalWalletPayments extends AbstractStripePaymentIntentPaymentMethod
                 ],
             ]);
         }
-        $user = Shopware()->Session()->sOrderVariables['sUserData'];
+        $user = $this->get('session')->sOrderVariables['sUserData'];
         $userEmail = $user['additional']['user']['email'];
         $customerNumber = $user['additional']['user']['customernumber'];
 
