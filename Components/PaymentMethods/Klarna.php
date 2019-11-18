@@ -24,7 +24,7 @@ class Klarna extends AbstractStripePaymentMethod
             'action' => 'completeRedirectFlow',
         ]);
         $basket = $this->get('session')->sOrderVariables->sBasket;
-        $userData = $this->get('session')->sOrderVariables->sUserData;
+
         $tax = [
             'type' => 'tax',
             'description' => 'Taxes',
@@ -51,6 +51,7 @@ class Klarna extends AbstractStripePaymentMethod
         $items[] = $tax;
         $items[] = $shipping;
 
+        $userData = $this->get('session')->sOrderVariables->sUserData;
         $customer = Util::getCustomer();
 
         $source = Stripe\Source::create([

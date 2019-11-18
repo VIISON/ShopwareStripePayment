@@ -141,6 +141,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
 
             $this->finishCheckout($order);
         } elseif ($source->status === 'pending') {
+            // Use the source to create an Order without a charge
             try {
                 $order = $this->saveOrderWithSource($source);
             } catch (Exception $e) {
@@ -310,18 +311,23 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         return $order;
     }
 
+    /**
+     * Saves the order in the database adding the ID of the given $source (as 'paymentUniqueId' aka 'temporaryID').
+     *
+     * @param Stripe\Source $source
+     * @return Order
+     */
     protected function saveOrderWithSource(Stripe\Source $source)
     {
-        // Save the payment details in the order. Use the source ID as the paymentUniqueId, because altough the column
-        // in the backend order list is named 'Transaktion' or 'tranaction', it displays NOT the transactionId, but the
-        // field 'temporaryID', to which the paymentUniqueId is written. Additionally the balance_transaction is
-        // displayed in the shop owner's Stripe account, so it can be used to easily identify an order.
+        // Modified version of shopwares saveOrder code to save the order with an empty bookingId
+
         $user = $this->getUser();
         $basket = $this->getBasket();
 
-        $order = Shopware()->Modules()->Order();
+        /** @var sOrder $orderModule */
+        $order = $this->get('modules')->getModule('Order');
         $order->sUserData = $user;
-        $order->sComment = Shopware()->Session()->sComment;
+        $order->sComment = $this->get('session')->sComment;
         $order->sBasketData = $basket;
         $order->sAmount = $basket['sAmount'];
         $order->sAmountWithTax = !empty($basket['AmountWithTaxNumeric']) ? $basket['AmountWithTaxNumeric'] : $basket['AmountNumeric'];
@@ -330,13 +336,13 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         $order->sShippingcostsNumeric = $basket['sShippingcostsWithTax'];
         $order->sShippingcostsNumericNet = $basket['sShippingcostsNet'];
         $order->bookingId = '';
-        $order->dispatchId = Shopware()->Session()->sDispatch;
+        $order->dispatchId = $this->get('session')->sDispatch;
         $order->sNet = empty($user['additional']['charge_vat']);
         $order->uniqueID = $source->id;
         $order->deviceType = $this->Request()->getDeviceType();
         $orderNumber = $order->sSaveOrder();
 
-        if (!empty($orderNumber) && !empty($paymentStatusId)) {
+        if (!empty($orderNumber)) {
             $this->savePaymentStatus('', $source->id, Status::PAYMENT_STATE_OPEN, false);
         }
 
@@ -345,7 +351,6 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
             return null;
         }
 
-        // Update the cleared date
         $order = $this->get('models')->getRepository('Shopware\\Models\\Order\\Order')->findOneBy([
             'number' => $orderNumber,
         ]);
@@ -353,6 +358,12 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         return $order;
     }
 
+    /**
+     * Update the order to save the Id of $charge as 'transactionID' and set the 'PaymentStatus' and 'ClearedDate'
+     *
+     * @param Stripe\Charge $charge
+     * @return Order
+     */
     protected function updateOrderWithCharge(Stripe\Charge $charge)
     {
 
