@@ -1,3 +1,14 @@
+## NEXT MINOR RELEASE
+
+### en
+
+* Adds support for Klarna.
+
+### de
+
+* Fügt die Unterstützung für Klarna hinzu.
+
+
 ## 5.2.0
 
 ### en
