@@ -138,8 +138,6 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
 
                 return;
             }
-
-            $this->finishCheckout($order);
         } elseif ($source->status === 'pending') {
             // Use the source to create an Order without a charge
             try {
@@ -150,14 +148,13 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
 
                 return;
             }
-
-            $this->finishCheckout($order);
         } else {
             $message = $this->getStripePaymentMethod()->getSnippet('payment_error/message/redirect/source_not_chargeable');
             $this->cancelCheckout($message);
 
             return;
         }
+        $this->finishCheckout($order);
     }
 
     /**
@@ -320,7 +317,6 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
     protected function saveOrderWithSource(Stripe\Source $source)
     {
         // Modified version of shopwares saveOrder code to save the order with an empty bookingId
-
         $user = $this->getUser();
         $basket = $this->getBasket();
 
@@ -366,7 +362,6 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
      */
     protected function updateOrderWithCharge(Stripe\Charge $charge)
     {
-
         $order = $this->get('models')->getRepository('Shopware\\Models\\Order\\Order')->findOneBy([
             'temporaryId' => $charge->source->id,
         ]);
@@ -452,6 +447,9 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         // Check whether the webhook event is allowed to create an order
         $source = $event->data->object;
         $stripeSession = Util::getStripeSession();
+        if ($source->id !== $stripeSession->processingSourceId) {
+            return;
+        }
 
         // Wait for five seconds
         sleep(5);
@@ -473,10 +471,6 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
                 ]
             );
 
-            return;
-        }
-
-        if ($source->id !== $stripeSession->processingSourceId) {
             return;
         }
 

@@ -18,11 +18,6 @@ class Klarna extends AbstractStripePaymentMethod
     public function createStripeSource($amountInCents, $currencyCode)
     {
         Util::initStripeAPI();
-        // Create a new Klarna source
-        $returnUrl = $this->assembleShopwareUrl([
-            'controller' => 'StripePayment',
-            'action' => 'completeRedirectFlow',
-        ]);
         $basket = $this->get('session')->sOrderVariables->sBasket;
 
         $tax = [
@@ -53,8 +48,13 @@ class Klarna extends AbstractStripePaymentMethod
 
         $userData = $this->get('session')->sOrderVariables->sUserData;
         $customer = Util::getCustomer();
-
-        $source = Stripe\Source::create([
+        
+        // Create a new Klarna source
+        $returnUrl = $this->assembleShopwareUrl([
+            'controller' => 'StripePayment',
+            'action' => 'completeRedirectFlow',
+        ]);
+        $sourceConfig = [
             'type' => 'klarna',
             'amount' => $amountInCents,
             'currency' => $currencyCode,
@@ -93,12 +93,15 @@ class Klarna extends AbstractStripePaymentMethod
                     ],
                 ],
             ],
-            'statement_descriptor' => $this->getStatementDescriptor(),
             'redirect' => [
                 'return_url' => $returnUrl,
             ],
             'metadata' => $this->getSourceMetadata(),
-        ]);
+        ];
+        if ($this->includeStatmentDescriptorInCharge()) {
+            $sourceConfig['statement_descriptor'] = $this->getStatementDescriptor();
+        }
+        $source = Stripe\Source::create($sourceConfig);
 
         return $source;
     }
@@ -108,7 +111,7 @@ class Klarna extends AbstractStripePaymentMethod
      */
     public function includeStatmentDescriptorInCharge()
     {
-        // Klarna payments require the statement descriptor to be part of their source
+        // Klarna payments does not require the statement descriptor to be part of their source
         return false;
     }
 }
