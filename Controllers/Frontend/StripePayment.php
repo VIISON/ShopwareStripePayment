@@ -186,6 +186,10 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
                 case 'charge.succeeded':
                     $this->processChargeSucceededEvent($event);
                     break;
+                case 'source.failed':
+                case 'source.canceled':
+                    $this->processSourceFailedEvent($event);
+                    break;
                 case 'source.chargeable':
                     $this->processSourceChargeableEvent($event);
                     break;
@@ -254,6 +258,62 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
     }
 
     /**
+     * Creates and returns a Stripe charge for the order, whose checkout is handled by this
+     * controller, using the provided Stripe $source.
+     *
+     * @param Stripe\Source $source
+     * @return Stripe\Charge
+     * @throws Exception If creating the charge failed.
+     */
+    protected function createChargeFromOrder(Stripe\Source $source, Order $order)
+    {
+        $customer = $order->getCustomer();
+        $customerNumber = $customer->getNumber();
+        $customerEmail = $customer->getEmail();
+
+        if ($order->getNet()) {
+            $amount = round($order->getInvoiceAmountNet() * 100);
+        } else {
+            $amount = round($order->getInvoiceAmount() * 100);
+        }
+
+        // Prepare the charge data
+        $chargeData = [
+            'source' => $source->id,
+            'amount' => $amount,
+            'currency' => $order->getCurrency(),
+            'description' => sprintf('%s / Customer %s', $customerEmail, $customerNumber),
+            'metadata' => [
+                'platform_name' => Util::STRIPE_PLATFORM_NAME,
+            ],
+        ];
+        // Add a statement descriptor, if necessary
+        $paymentInstances = $order->getPayment()->getClass();
+        $paymentMethod = $this->get('modules')->Admin()->sInitiatePaymentClass([
+            'class' => $paymentInstances,
+        ]);
+        if ($paymentMethod->includeStatmentDescriptorInCharge()) {
+            $chargeData['statement_descriptor'] = mb_substr($paymentMethod->getStatementDescriptor(), 0, 22);
+        }
+
+        // Try to add a customer reference to the charge
+        $stripeCustomerId = $customer->getAttribute()->getStripeCustomerId();
+        if ($stripeCustomerId !== null) {
+            $stripeCustomer = Stripe\Customer::retrieve($stripeCustomerId);
+        }
+        if ($source->customer && $stripeCustomer) {
+            $chargeData['customer'] = $stripeCustomer->id;
+        }
+        // Enable receipt emails, if configured
+        $sendReceiptEmails = $this->get('plugins')->get('Frontend')->get('StripePayment')->Config()->get('sendStripeChargeEmails');
+        if ($sendReceiptEmails) {
+            $chargeData['receipt_email'] = $customerEmail;
+        }
+
+        return Stripe\Charge::create($chargeData);
+    }
+
+    /**
      * Saves the order in the database adding both the ID of the given $charge (as 'transactionId')
      * and the charge's 'balance_transaction' (as 'paymentUniqueId' aka 'temporaryID'). We use the
      * 'balance_transaction' as 'paymentUniqueId', because altough the column in the backend order
@@ -316,31 +376,12 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
      */
     protected function saveOrderWithSource(Stripe\Source $source)
     {
-        // Modified version of shopwares saveOrder code to save the order with an empty bookingId
-        $user = $this->getUser();
-        $basket = $this->getBasket();
-
-        /** @var sOrder $orderModule */
-        $order = $this->get('modules')->getModule('Order');
-        $order->sUserData = $user;
-        $order->sComment = $this->get('session')->sComment;
-        $order->sBasketData = $basket;
-        $order->sAmount = $basket['sAmount'];
-        $order->sAmountWithTax = !empty($basket['AmountWithTaxNumeric']) ? $basket['AmountWithTaxNumeric'] : $basket['AmountNumeric'];
-        $order->sAmountNet = $basket['AmountNetNumeric'];
-        $order->sShippingcosts = $basket['sShippingcosts'];
-        $order->sShippingcostsNumeric = $basket['sShippingcostsWithTax'];
-        $order->sShippingcostsNumericNet = $basket['sShippingcostsNet'];
-        $order->bookingId = '';
-        $order->dispatchId = $this->get('session')->sDispatch;
-        $order->sNet = empty($user['additional']['charge_vat']);
-        $order->uniqueID = $source->id;
-        $order->deviceType = $this->Request()->getDeviceType();
-        $orderNumber = $order->sSaveOrder();
-
-        if (!empty($orderNumber)) {
-            $this->savePaymentStatus('', $source->id, Status::PAYMENT_STATE_OPEN, false);
-        }
+        // Save the order with a temporary transactionId
+        $orderNumber = $this->saveOrder(
+            'stripe_source_pending_'. mb_substr($source->id, 4, 6), // transactionId
+            $source->id, // paymentUniqueId
+            Status::PAYMENT_STATE_OPEN // paymentStatusId
+        );
 
         if (!$orderNumber) {
             // Order creation failed
@@ -430,6 +471,23 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
     }
 
     /**
+     * Tries to find the order the event belongs to and, if found, update its payment status
+     * to 'review necessary'.
+     *
+     * @param Stripe\Event $event
+     */
+    protected function processSourceFailedEvent(Stripe\Event $event)
+    {
+        $order = $this->findOrderForWebhookEvent($event);
+        if (!$order) {
+            return;
+        }
+        $paymentStatus = $this->get('models')->find(Status::class, Status::PAYMENT_STATE_REVIEW_NECESSARY);
+        $order->setPaymentStatus($paymentStatus);
+        $this->get('models')->flush($order);
+    }
+
+    /**
      * First checks the Shopware session for the 'stripePayment->processingSourceId' field and,
      * if set, makes sure the ID matches the source contained in the event. Then waits for five
      * seconds to prevent timing issues caused by webhooks arriving earlier than e.g. a redirect
@@ -446,10 +504,6 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
     {
         // Check whether the webhook event is allowed to create an order
         $source = $event->data->object;
-        $stripeSession = Util::getStripeSession();
-        if ($source->id !== $stripeSession->processingSourceId) {
-            return;
-        }
 
         // Wait for five seconds
         sleep(5);
@@ -458,10 +512,10 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         // a redirect
         $order = $this->findOrderForWebhookEvent($event);
         if ($order) {
-            if ($order->getTransactionId()) {
+            if (mb_substr($order->getTransactionId(), 0, 21) !== 'stripe_source_pending') {
                 return;
             }
-            $charge = $this->createCharge($event->data->object);
+            $charge = $this->createChargeFromOrder($event->data->object, $order);
             $order = $this->updateOrderWithCharge($charge);
             $this->get('pluginlogger')->info(
                 'StripePayment: Updated order after receiving "source.chargeable" webhook event',
@@ -471,6 +525,11 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
                 ]
             );
 
+            return;
+        }
+
+        $stripeSession = Util::getStripeSession();
+        if ($source->id !== $stripeSession->processingSourceId) {
             return;
         }
 
