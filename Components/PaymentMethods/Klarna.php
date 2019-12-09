@@ -30,7 +30,7 @@ class Klarna extends AbstractStripePaymentMethod
             'type' => 'shipping',
             'description' => 'Shipping',
             'currency' => $currencyCode,
-            'amount' => round($basket['sShippingcostsNet'] * 100),
+            'amount' => round($basket['sShippingcosts'] * 100),
         ];
 
         $items = array_map(function ($item) use ($currencyCode) {
@@ -39,16 +39,21 @@ class Klarna extends AbstractStripePaymentMethod
                 'description' => $item['articlename'],
                 'quantity' => $item['quantity'],
                 'currency' => $currencyCode,
-                'amount' => round($item['amountnetNumeric'] * 100),
+                'amount' => round($item['amountNumeric'] * 100),
             ];
         }, $basket['content']);
 
-        $items[] = $tax;
+        if (!$this->get('session')->sOrderVariables->sUserData['additional']['show_net']) {
+            $items[] = $tax;
+        }
         $items[] = $shipping;
 
         $userData = $this->get('session')->sOrderVariables->sUserData;
         $customer = Util::getCustomer();
-        
+
+        $locale = $this->get('shop')->getLocale()->getLocale();
+        $locale = str_replace('_', '-', $locale);
+
         // Create a new Klarna source
         $returnUrl = $this->assembleShopwareUrl([
             'controller' => 'StripePayment',
@@ -78,7 +83,7 @@ class Klarna extends AbstractStripePaymentMethod
                 'purchase_country' => $this->get('session')->sOrderVariables->sCountry['countryiso'],
                 'shipping_first_name' => $customer->getFirstname(),
                 'shipping_last_name' => $customer->getLastname(),
-                'locale' => 'de-DE',
+                'locale' => $locale,
             ],
             'source_order' => [
                 'items' => array_values($items),
