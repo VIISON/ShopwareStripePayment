@@ -127,6 +127,14 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
             return;
         }
 
+        // Cancel Order when Payment gets canceled
+        if ($this->Request()->getParam('redirect_status') === 'canceled') {
+            $message = $this->getStripePaymentMethod()->getSnippet('payment_error/message/redirect/source_not_chargeable');
+            $this->cancelCheckout($message);
+
+            return;
+        }
+
         if ($source->status === 'chargeable') {
             // Use the source to create the charge and save the order
             try {
@@ -378,7 +386,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
     {
         // Save the order with a temporary transactionId
         $orderNumber = $this->saveOrder(
-            'stripe_source_pending_'. mb_substr($source->id, 4, 6), // transactionId
+            'src_pending'. mb_substr($source->id, 3), // transactionId
             $source->id, // paymentUniqueId
             Status::PAYMENT_STATE_OPEN // paymentStatusId
         );
@@ -512,7 +520,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         // a redirect
         $order = $this->findOrderForWebhookEvent($event);
         if ($order) {
-            if (mb_substr($order->getTransactionId(), 0, 21) !== 'stripe_source_pending') {
+            if (mb_substr($order->getTransactionId(), 0, 11) !== 'src_pending') {
                 return;
             }
             $charge = $this->createChargeFromOrder($event->data->object, $order);
