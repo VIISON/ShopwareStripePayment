@@ -59,7 +59,8 @@ class Klarna extends AbstractStripePaymentMethod
             'controller' => 'StripePayment',
             'action' => 'completeRedirectFlow',
         ]);
-        $sourceConfig = [
+
+        return Stripe\Source::create([
             'type' => 'klarna',
             'amount' => $amountInCents,
             'currency' => $currencyCode,
@@ -98,17 +99,12 @@ class Klarna extends AbstractStripePaymentMethod
                     ],
                 ],
             ],
+            'statement_descriptor' => $this->getStatementDescriptor(),
             'redirect' => [
                 'return_url' => $returnUrl,
             ],
             'metadata' => $this->getSourceMetadata(),
-        ];
-        if ($this->includeStatmentDescriptorInCharge()) {
-            $sourceConfig['statement_descriptor'] = $this->getStatementDescriptor();
-        }
-        $source = Stripe\Source::create($sourceConfig);
-
-        return $source;
+        ]);
     }
 
     /**
@@ -116,7 +112,7 @@ class Klarna extends AbstractStripePaymentMethod
      */
     public function includeStatmentDescriptorInCharge()
     {
-        // Klarna payments does not require the statement descriptor to be part of their source
+        // Klarna payments require the statement descriptor to be part of their source
         return false;
     }
 }
