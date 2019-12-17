@@ -497,17 +497,16 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
     }
 
     /**
-     * First this waits for five seconds to prevent timing issues caused by webhooks arriving
-     * earlier than e.g. a redirect during the payment process.
-     * That is, if completing the  payment process involves e.g.
-     * a redirect to the payment provider, the 'source.chargeable' event might arrive at the shop
-     * earlier than the redirect returns. By pausing the webhook handler, we give the redirect a
+     * First wait for five seconds to prevent timing issues caused by webhooks arriving
+     * earlier than e.g. a redirect during the payment process. That is, if completing the payment
+     * process involves e.g. a redirect to the payment provider, the 'source.chargeable' event might
+     * arrive at the shop earlier than the redirect returns. By pausing the webhook handler, we give the redirect a
      * head start to complete the order creation. After waiting, the database is checked for an
      * order that used the event's source. If an order is found and its transactionId starts with 'src_pending',
      * the source and order are used to create a charge and the order gets updated with the charge.
-     * If no such order is found, the source is used to create a charge and the session's order is saved to the database.
-     * But first it checks the Shopware session for the 'stripePayment->processingSourceId' field and,
-     * if set, makes sure the ID matches the source contained in the event.
+     * If no such order is found, check the Shopware session for the 'stripePayment->processingSourceId' field and
+     * make sure the ID matches the source contained in the event because we need the users session to
+     * create the charge and persist the order.
      *
      * @param Stripe\Event $event
      */
