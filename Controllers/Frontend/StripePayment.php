@@ -162,6 +162,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
 
             return;
         }
+
         $this->finishCheckout($order);
     }
 
@@ -270,6 +271,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
      * controller, using the provided Stripe $source.
      *
      * @param Stripe\Source $source
+     * @param Order $order
      * @return Stripe\Charge
      * @throws Exception If creating the charge failed.
      */
@@ -280,15 +282,15 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         $customerEmail = $customer->getEmail();
 
         if ($order->getNet()) {
-            $amount = round($order->getInvoiceAmountNet() * 100);
+            $amountInCents = round($order->getInvoiceAmountNet() * 100);
         } else {
-            $amount = round($order->getInvoiceAmount() * 100);
+            $amountInCents = round($order->getInvoiceAmount() * 100);
         }
 
         // Prepare the charge data
         $chargeData = [
             'source' => $source->id,
-            'amount' => $amount,
+            'amount' => $amountInCents,
             'currency' => $order->getCurrency(),
             'description' => sprintf('%s / Customer %s', $customerEmail, $customerNumber),
             'metadata' => [
@@ -306,11 +308,8 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
 
         // Try to add a customer reference to the charge
         $stripeCustomerId = $customer->getAttribute()->getStripeCustomerId();
-        if ($stripeCustomerId !== null) {
-            $stripeCustomer = Stripe\Customer::retrieve($stripeCustomerId);
-        }
-        if ($source->customer && $stripeCustomer) {
-            $chargeData['customer'] = $stripeCustomer->id;
+        if ($source->customer && $stripeCustomerId) {
+            $chargeData['customer'] = $stripeCustomerId;
         }
         // Enable receipt emails, if configured
         $sendReceiptEmails = $this->get('plugins')->get('Frontend')->get('StripePayment')->Config()->get('sendStripeChargeEmails');
@@ -354,7 +353,9 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         $order = $this->get('models')->getRepository('Shopware\\Models\\Order\\Order')->findOneBy([
             'number' => $orderNumber,
         ]);
-        $order->setClearedDate(new \DateTime());
+        if ($charge->status === 'succeeded') {
+            $order->setClearedDate(new \DateTime());
+        }
         $this->get('models')->flush($order);
 
         try {
@@ -386,7 +387,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
     {
         // Save the order with a temporary transactionId
         $orderNumber = $this->saveOrder(
-            'src_pending'. mb_substr($source->id, 3), // transactionId
+            'src_pending_'. mb_substr($source->id, 4), // transactionId
             $source->id, // paymentUniqueId
             Status::PAYMENT_STATE_OPEN // paymentStatusId
         );
@@ -396,11 +397,9 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
             return null;
         }
 
-        $order = $this->get('models')->getRepository('Shopware\\Models\\Order\\Order')->findOneBy([
+        return $this->get('models')->getRepository('Shopware\\Models\\Order\\Order')->findOneBy([
             'number' => $orderNumber,
         ]);
-
-        return $order;
     }
 
     /**
@@ -420,7 +419,9 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
 
         $order->setTransactionId($charge->id);
         $order->setPaymentStatus($paymentStatus);
-        $order->setClearedDate(new \DateTime());
+        if ($charge->status === 'succeeded') {
+            $order->setClearedDate(new \DateTime());
+        }
         $this->get('models')->flush($order);
 
         $orderNumber = $order->getNumber();
@@ -496,25 +497,27 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
     }
 
     /**
-     * First checks the Shopware session for the 'stripePayment->processingSourceId' field and,
-     * if set, makes sure the ID matches the source contained in the event. Then waits for five
-     * seconds to prevent timing issues caused by webhooks arriving earlier than e.g. a redirect
-     * during the payment process. That is, if completing the  payment process involves e.g.
+     * First this waits for five seconds to prevent timing issues caused by webhooks arriving
+     * earlier than e.g. a redirect during the payment process.
+     * That is, if completing the  payment process involves e.g.
      * a redirect to the payment provider, the 'source.chargeable' event might arrive at the shop
      * earlier than the redirect returns. By pausing the webhook handler, we give the redirect a
      * head start to complete the order creation. After waiting, the database is checked for an
-     * order that used the event's source. If no such order is found, the source is used to
-     * create a charge and the session's order is saved to the database.
+     * order that used the event's source. If an order is found and its transactionId starts with 'src_pending',
+     * the source and order are used to create a charge and the order gets updated with the charge.
+     * If no such order is found, the source is used to create a charge and the session's order is saved to the database.
+     * But first it checks the Shopware session for the 'stripePayment->processingSourceId' field and,
+     * if set, makes sure the ID matches the source contained in the event.
      *
      * @param Stripe\Event $event
      */
     protected function processSourceChargeableEvent(Stripe\Event $event)
     {
-        // Check whether the webhook event is allowed to create an order
-        $source = $event->data->object;
-
         // Wait for five seconds
         sleep(5);
+
+        // Retrieve the source from the stripe event
+        $source = $event->data->object;
 
         // Make sure the source has not already been used to create an order, e.g. by completing
         // a redirect
@@ -523,7 +526,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
             if (mb_substr($order->getTransactionId(), 0, 11) !== 'src_pending') {
                 return;
             }
-            $charge = $this->createChargeFromOrder($event->data->object, $order);
+            $charge = $this->createChargeFromOrder($source, $order);
             $order = $this->updateOrderWithCharge($charge);
             $this->get('pluginlogger')->info(
                 'StripePayment: Updated order after receiving "source.chargeable" webhook event',
@@ -536,6 +539,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
             return;
         }
 
+        // Check whether the webhook event is allowed to create an order from the restored session
         $stripeSession = Util::getStripeSession();
         if ($source->id !== $stripeSession->processingSourceId) {
             return;
