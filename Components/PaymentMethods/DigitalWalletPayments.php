@@ -29,9 +29,10 @@ class DigitalWalletPayments extends AbstractStripePaymentIntentPaymentMethod
         $stripeCustomer = null;
         if ($customer) {
             // Always create a new stripe customer
+            $customerName = Util::getCustomerName();
             $stripeCustomer = Stripe\Customer::create([
-                'name' => Util::getCustomerName(),
-                'description' => Util::getCustomerName(),
+                'name' => $customerName,
+                'description' => $customerName,
                 'email' => $customer->getEmail(),
                 'metadata' => [
                     'platform_name' => Util::STRIPE_PLATFORM_NAME,
