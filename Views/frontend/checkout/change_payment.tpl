@@ -17,12 +17,12 @@
                 <div class="panel--td stripe-payment-provider-logo giropay"></div>
             {elseif $payment_mean.class == "StripePaymentIdeal"}
                 <div class="panel--td stripe-payment-provider-logo ideal"></div>
+            {elseif $payment_mean.class == "StripePaymentKlarna"}
+                <div class="panel--td stripe-payment-provider-logo klarna"></div>
             {elseif $payment_mean.class == "StripePaymentSepa"}
                 <div class="panel--td stripe-payment-provider-logo sepa"></div>
             {elseif $payment_mean.class == "StripePaymentSofort"}
                 <div class="panel--td stripe-payment-provider-logo sofort"></div>
-            {elseif $payment_mean.class == "StripePaymentKlarna"}
-                <div class="panel--td stripe-payment-provider-logo klarna"></div>
             {/if}
             </div>
         </div>

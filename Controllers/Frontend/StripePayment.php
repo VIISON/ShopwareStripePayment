@@ -527,7 +527,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
             if (mb_substr($order->getTransactionId(), 0, 11) !== 'src_pending') {
                 return;
             }
-            $charge = $this->createChargeFromOrder($source, $order);
+            $charge = $this->createChargeForOrder($source, $order);
             $order = $this->updateOrderWithCharge($charge);
             $this->get('pluginlogger')->info(
                 'StripePayment: Updated order after receiving "source.chargeable" webhook event',

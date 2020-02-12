@@ -19,20 +19,6 @@ class Klarna extends AbstractStripePaymentMethod
     {
         Util::initStripeAPI();
         $basket = $this->get('session')->sOrderVariables->sBasket;
-
-        $tax = [
-            'type' => 'tax',
-            'description' => 'Taxes',
-            'currency' => $currencyCode,
-            'amount' => round($basket['sAmountTax'] * 100),
-        ];
-        $shipping = [
-            'type' => 'shipping',
-            'description' => 'Shipping',
-            'currency' => $currencyCode,
-            'amount' => round($basket['sShippingcosts'] * 100),
-        ];
-
         $items = array_map(function ($item) use ($currencyCode) {
             return [
                 'type' => 'sku',
@@ -44,22 +30,26 @@ class Klarna extends AbstractStripePaymentMethod
         }, $basket['content']);
 
         if (!$this->get('session')->sOrderVariables->sUserData['additional']['show_net']) {
-            $items[] = $tax;
+            $items[] = [
+                'type' => 'tax',
+                'description' => 'Taxes',
+                'currency' => $currencyCode,
+                'amount' => round($basket['sAmountTax'] * 100),
+            ];
         }
-        $items[] = $shipping;
+        $items[] = [
+            'type' => 'shipping',
+            'description' => 'Shipping',
+            'currency' => $currencyCode,
+            'amount' => round($basket['sShippingcosts'] * 100),
+        ];
 
         $userData = $this->get('session')->sOrderVariables->sUserData;
         $customer = Util::getCustomer();
 
-        $locale = $this->get('shop')->getLocale()->getLocale();
-        $locale = str_replace('_', '-', $locale);
+        $locale = str_replace('_', '-', $this->get('shop')->getLocale()->getLocale());
 
         // Create a new Klarna source
-        $returnUrl = $this->assembleShopwareUrl([
-            'controller' => 'StripePayment',
-            'action' => 'completeRedirectFlow',
-        ]);
-
         return Stripe\Source::create([
             'type' => 'klarna',
             'amount' => $amountInCents,
@@ -101,7 +91,10 @@ class Klarna extends AbstractStripePaymentMethod
             ],
             'statement_descriptor' => $this->getStatementDescriptor(),
             'redirect' => [
-                'return_url' => $returnUrl,
+                'return_url' => $this->assembleShopwareUrl([
+                    'controller' => 'StripePayment',
+                    'action' => 'completeRedirectFlow',
+                ]),
             ],
             'metadata' => $this->getSourceMetadata(),
         ]);
