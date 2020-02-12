@@ -26,7 +26,7 @@ var StripePaymentDigitalWalletPayments = {
     /**
      * The selected payment method in the checkout flow.
      */
-    selectedPaymentMethod: null,
+    selectedPaymentMethodName: null,
 
     /**
      * A list of items to show in the payment requests popup.
