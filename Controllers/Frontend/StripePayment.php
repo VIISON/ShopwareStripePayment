@@ -147,7 +147,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
                 return;
             }
         } elseif ($source->status === 'pending') {
-            // Use the source to create an Order without a charge
+            // Use the source to create an order without a charge
             try {
                 $order = $this->saveOrderWithSource($source);
             } catch (Exception $e) {
