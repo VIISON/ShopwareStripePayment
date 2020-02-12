@@ -14,7 +14,7 @@ var StripePaymentDigitalWalletPayments = {
     paymentRequest: null,
 
     /**
-     * A boolean indicating whether the payment api used for digital wallet payments is available in the current browser environment.
+     * A boolean indicating whether the payment API used for digital wallet payments is available in the current browser environment.
      */
     paymentApiAvailable: false,
 
