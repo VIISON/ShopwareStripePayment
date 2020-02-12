@@ -297,6 +297,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
                 'platform_name' => Util::STRIPE_PLATFORM_NAME,
             ],
         ];
+
         // Add a statement descriptor, if necessary
         $paymentInstances = $order->getPayment()->getClass();
         $paymentMethod = $this->get('modules')->Admin()->sInitiatePaymentClass([
