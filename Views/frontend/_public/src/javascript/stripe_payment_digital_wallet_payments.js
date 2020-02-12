@@ -101,7 +101,7 @@ var StripePaymentDigitalWalletPayments = {
     },
 
     /**
-     * Creates the payment request and evaluates whether the payment api is available in the current browser environment.
+     * Creates the payment request and evaluates whether the payment API is available in the current browser environment.
      *
      * @param String stripePublicKey
      * @param String countryCode
