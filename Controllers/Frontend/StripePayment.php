@@ -127,7 +127,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
             return;
         }
 
-        // Cancel Order when Payment gets canceled
+        // Cancel order when payment was canceled
         if ($this->Request()->getParam('redirect_status') === 'canceled') {
             $message = $this->getStripePaymentMethod()->getSnippet('payment_error/message/redirect/source_not_chargeable');
             $this->cancelCheckout($message);
