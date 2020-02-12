@@ -51,9 +51,9 @@ var StripePaymentDigitalWallets = {
      * Uses the Stripe client to create a new digital wallet payment request for the passed config and adds a listener
      * on the main form's submit button.
      *
-     * @param String stripePublicKey
-     * @param Object config
-     * @param String selectedPaymentMethodName
+     * @param {String} stripePublicKey
+     * @param {Object} config
+     * @param {String} selectedPaymentMethodName
      */
     init: function (stripePublicKey, config, selectedPaymentMethodName) {
         var me = this;
@@ -103,11 +103,11 @@ var StripePaymentDigitalWallets = {
     /**
      * Creates the payment request and evaluates whether the payment API is available in the current browser environment.
      *
-     * @param String stripePublicKey
-     * @param String countryCode
-     * @param String currencyCode
-     * @param String statementDescriptor
-     * @param String amount
+     * @param {String} stripePublicKey
+     * @param {String} countryCode
+     * @param {String} currencyCode
+     * @param {String} statementDescriptor
+     * @param {String} amount
      */
     createPaymentRequest: function (stripePublicKey, countryCode, currencyCode, statementDescriptor, amount) {
         var me = this;
@@ -122,7 +122,7 @@ var StripePaymentDigitalWallets = {
             displayItems: me.paymentDisplayItems,
         });
 
-// Check for availability of the payment API
+        // Check for availability of the payment API
         me.paymentRequest.canMakePayment().then(function (result) {
             if (me.selectedPaymentMethodName === 'apple_pay') {
                 me.paymentApiAvailable = result && result.applePay;
@@ -131,7 +131,7 @@ var StripePaymentDigitalWallets = {
             }
             if (!me.paymentApiAvailable) {
                 me.handleStripeError(
-                    me.isSecureConnection() ? me.snippets.error.connectionNotSecure : me.snippets.error.notAvailable
+                    !me.isSecureConnection() ? me.snippets.error.connectionNotSecure : me.snippets.error.notAvailable
                 );
             }
         });
@@ -166,7 +166,7 @@ var StripePaymentDigitalWallets = {
      * however the main form cannot be submitted, because no paymentMethodId exist, the digital wallet payments flow
      * is triggered.
      *
-     * @param Event event
+     * @param {Object} event
      */
     onFormSubmission: function (event) {
         var me = event.data.scope;
@@ -222,7 +222,7 @@ var StripePaymentDigitalWallets = {
     /**
      * Sets the given message in the general error box and scrolls the page to make it visible.
      *
-     * @param String message A Stripe error message.
+     * @param {String} message A Stripe error message.
      */
     handleStripeError: function (message) {
         // Display the error message and scroll to its position
