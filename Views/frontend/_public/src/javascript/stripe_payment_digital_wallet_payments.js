@@ -122,7 +122,7 @@ var StripePaymentDigitalWalletPayments = {
             displayItems: me.paymentDisplayItems,
         });
 
-        // Check for availability of the payment api
+// Check for availability of the payment API
         me.paymentRequest.canMakePayment().then(function (result) {
             if (me.selectedPaymentMethod === 'apple_pay') {
                 me.paymentApiAvailable = result && result.applePay;
