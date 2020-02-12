@@ -275,7 +275,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
      * @return Stripe\Charge
      * @throws Exception If creating the charge failed.
      */
-    protected function createChargeFromOrder(Stripe\Source $source, Order $order)
+    protected function createChargeForOrder(Stripe\Source $source, Order $order)
     {
         $customer = $order->getCustomer();
         $customerNumber = $customer->getNumber();
