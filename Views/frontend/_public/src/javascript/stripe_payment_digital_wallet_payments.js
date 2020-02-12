@@ -53,11 +53,11 @@ var StripePaymentDigitalWalletPayments = {
      *
      * @param String stripePublicKey
      * @param Object config
-     * @param String selectedPaymentMethod
+     * @param String selectedPaymentMethodName
      */
-    init: function (stripePublicKey, config, selectedPaymentMethod) {
+    init: function (stripePublicKey, config, selectedPaymentMethodName) {
         var me = this;
-        this.selectedPaymentMethod = selectedPaymentMethod;
+        this.selectedPaymentMethodName = selectedPaymentMethodName;
 
         // Validate config
         if (!config.countryCode || !config.currencyCode || !config.amount || !config.basketContent) {
@@ -124,18 +124,15 @@ var StripePaymentDigitalWalletPayments = {
 
 // Check for availability of the payment API
         me.paymentRequest.canMakePayment().then(function (result) {
-            if (me.selectedPaymentMethod === 'apple_pay') {
+            if (me.selectedPaymentMethodName === 'apple_pay') {
                 me.paymentApiAvailable = result && result.applePay;
             } else {
-                me.paymentApiAvailable = !!result && !result.applePay;
+                me.paymentApiAvailable = result && !result.applePay;
             }
             if (!me.paymentApiAvailable) {
-                if (!me.isSecureConnection()) {
-                    me.handleStripeError(me.snippets.error.connectionNotSecure);
-
-                    return undefined;
-                }
-                me.handleStripeError(me.snippets.error.notAvailable);
+                me.handleStripeError(
+                    me.isSecureConnection() ? me.snippets.error.connectionNotSecure : me.snippets.error.notAvailable
+                );
             }
         });
 

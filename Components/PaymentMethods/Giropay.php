@@ -45,7 +45,7 @@ class Giropay extends AbstractStripePaymentMethod
     /**
      * @inheritdoc
      */
-    public function includeStatmentDescriptorInCharge()
+    public function includeStatementDescriptorInCharge()
     {
         // Giropay payments require the statement descriptor to be part of their source
         return false;

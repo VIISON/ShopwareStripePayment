@@ -67,18 +67,18 @@
                     shippingCost: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallet_payments name=shipping_cost}{/stripe_snippet}',
                 };
                 var paymentMethod = '{$sUserData.additional.payment.name}'.replace('stripe_payment_', '');
+                var paymentMethodName = '';
                 switch (paymentMethod) {
                     case 'apple_pay':
-                        stripePaymentSnippets.error.connectionNotSecure = stripePaymentSnippets.error.connectionNotSecure.replace('[0]', 'Apple Pay');
-                        stripePaymentSnippets.error.invalidConfig = stripePaymentSnippets.error.invalidConfig.replace('[0]', 'Apple Pay');
-                        stripePaymentSnippets.error.notAvailable = stripePaymentSnippets.error.notAvailable.replace('[0]', 'Apple Pay');
+                        paymentMethodName = 'Apple Pay';
                         break;
                     case 'google_pay':
-                        stripePaymentSnippets.error.connectionNotSecure = stripePaymentSnippets.error.connectionNotSecure.replace('[0]', 'Google Pay');
-                        stripePaymentSnippets.error.invalidConfig = stripePaymentSnippets.error.invalidConfig.replace('[0]', 'Google Pay');
-                        stripePaymentSnippets.error.notAvailable = stripePaymentSnippets.error.notAvailable.replace('[0]', 'Google Pay');
+                        paymentMethodName = 'Google Pay';
                         break;
                 }
+                stripePaymentSnippets.error.connectionNotSecure = stripePaymentSnippets.error.connectionNotSecure.replace('[0]', paymentMethodName);
+                stripePaymentSnippets.error.invalidConfig = stripePaymentSnippets.error.invalidConfig.replace('[0]', paymentMethodName);
+                stripePaymentSnippets.error.notAvailable = stripePaymentSnippets.error.notAvailable.replace('[0]', paymentMethodName);
 
                 var stripePaymentConfig = {
                     countryCode: '{$sUserData.additional.country.countryiso}',

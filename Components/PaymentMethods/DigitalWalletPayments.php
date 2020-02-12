@@ -60,7 +60,7 @@ class DigitalWalletPayments extends AbstractStripePaymentIntentPaymentMethod
         if ($stripeCustomer) {
             $paymentIntentConfig['customer'] = $stripeCustomer->id;
         }
-        if ($this->includeStatmentDescriptorInCharge()) {
+        if ($this->includeStatementDescriptorInCharge()) {
             $paymentIntentConfig['statement_descriptor'] = mb_substr($this->getStatementDescriptor(), 0, 22);
         }
 
@@ -70,12 +70,7 @@ class DigitalWalletPayments extends AbstractStripePaymentIntentPaymentMethod
             $paymentIntentConfig['receipt_email'] = $userEmail;
         }
 
-        $paymentIntent = Stripe\PaymentIntent::create($paymentIntentConfig);
-        if (!$paymentIntent) {
-            throw new \Exception($this->getSnippet('payment_error/message/transaction_not_found'));
-        }
-
-        return $paymentIntent;
+        return Stripe\PaymentIntent::create($paymentIntentConfig);
     }
 
     /**

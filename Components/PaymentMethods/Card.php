@@ -48,7 +48,7 @@ class Card extends AbstractStripePaymentIntentPaymentMethod
             'customer' => $stripeCustomer->id,
             'description' => sprintf('%s / Customer %s', $userEmail, $customerNumber),
         ];
-        if ($this->includeStatmentDescriptorInCharge()) {
+        if ($this->includeStatementDescriptorInCharge()) {
             $paymentIntentConfig['statement_descriptor'] = mb_substr($this->getStatementDescriptor(), 0, 22);
         }
 
@@ -85,7 +85,7 @@ class Card extends AbstractStripePaymentIntentPaymentMethod
     /**
      * @inheritdoc
      */
-    public function includeStatmentDescriptorInCharge()
+    public function includeStatementDescriptorInCharge()
     {
         // Card payment methods can be reused several times and hence should contain a statement descriptor in charge
         return true;
