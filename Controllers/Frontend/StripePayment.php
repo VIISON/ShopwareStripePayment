@@ -268,7 +268,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
 
     /**
      * Creates and returns a Stripe charge for the order, whose checkout is handled by this
-     * controller, using the provided Stripe $source.
+     * controller, using the provided Stripe source.
      *
      * @param Stripe\Source $source
      * @param Order $order
