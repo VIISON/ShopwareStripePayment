@@ -312,6 +312,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         if ($source->customer && $stripeCustomerId) {
             $chargeData['customer'] = $stripeCustomerId;
         }
+
         // Enable receipt emails, if configured
         $sendReceiptEmails = $this->get('plugins')->get('Frontend')->get('StripePayment')->Config()->get('sendStripeChargeEmails');
         if ($sendReceiptEmails) {
