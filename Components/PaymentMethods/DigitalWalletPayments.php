@@ -81,7 +81,7 @@ class DigitalWalletPayments extends AbstractStripePaymentIntentPaymentMethod
     /**
      * @inheritdoc
      */
-    public function includeStatmentDescriptorInCharge()
+    public function includeStatementDescriptorInCharge()
     {
         // DigitalWalletPayments payment intents should contain a statement descriptor in the charge
         return true;
