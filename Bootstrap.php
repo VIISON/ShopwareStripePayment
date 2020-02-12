@@ -305,7 +305,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                     'description' => 'Google Pay (via Stripe)',
                     'template' => '',
                     'action' => 'StripePaymentIntent',
-                    'class' => 'StripePaymentDigitalWalletPayments',
+                    'class' => 'StripePaymentDigitalWallets',
                     'additionalDescription' => '',
                     'active' => false,
                 ]);
@@ -313,7 +313,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                     'name' => 'stripe_payment_apple_pay',
                 ]);
                 if ($applePayPaymentMethod) {
-                    $applePayPaymentMethod->setClass('StripePaymentDigitalWalletPayments');
+                    $applePayPaymentMethod->setClass('StripePaymentDigitalWallets');
                     $applePayPaymentMethod->setAction('StripePaymentIntent');
                     $this->get('models')->flush($applePayPaymentMethod);
                 }

@@ -83,11 +83,11 @@ class Checkout implements SubscriberInterface
             }
 
             $session = Shopware()->Container()->get('session');
-            if ($actionName === 'confirm' && $session->sOrderVariables->sPayment['class'] === 'StripePaymentDigitalWalletPayments') {
+            if ($actionName === 'confirm' && $session->sOrderVariables->sPayment['class'] === 'StripePaymentDigitalWallets') {
                 // Add the payment method's statement descriptor to the view
                 $modules = Shopware()->Container()->get('modules');
                 $paymentMethod = $modules->Admin()->sInitiatePaymentClass($session->sOrderVariables->sPayment);
-                $stripeViewParams['digitalWalletPaymentsStatementDescriptor'] = $paymentMethod->getStatementDescriptor();
+                $stripeViewParams['digitalWalletsStatementDescriptor'] = $paymentMethod->getStatementDescriptor();
             }
 
             // Add name of SEPA creditor (company or shop name as fallback)

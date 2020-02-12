@@ -10,7 +10,7 @@ namespace Shopware\Plugins\StripePayment\Components\PaymentMethods;
 use Shopware\Plugins\StripePayment\Util;
 use Stripe;
 
-class DigitalWalletPayments extends AbstractStripePaymentIntentPaymentMethod
+class DigitalWallets extends AbstractStripePaymentIntentPaymentMethod
 {
     /**
      * @inheritdoc
@@ -78,7 +78,7 @@ class DigitalWalletPayments extends AbstractStripePaymentIntentPaymentMethod
      */
     public function includeStatementDescriptorInCharge()
     {
-        // DigitalWalletPayments payment intents should contain a statement descriptor in the charge
+        // DigitalWallets payment intents should contain a statement descriptor in the charge
         return true;
     }
 }

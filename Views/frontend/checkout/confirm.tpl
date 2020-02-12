@@ -5,7 +5,7 @@
 
     {include file="frontend/checkout/stripe_payment_error.tpl"}
 
-    {if $sUserData.additional.payment.class == "StripePaymentDigitalWalletPayments"}
+    {if $sUserData.additional.payment.class == "StripePaymentDigitalWallets"}
         {* Add a hidden error message component *}
         <div id="stripe-payment-payment-request-api-error-box" class="alert is--error is--rounded" style="display: none;">
             <div class="alert--icon">
@@ -43,7 +43,7 @@
                 element.insertAfter('.payment--panel .payment--content .payment--method-info');
             });
         </script>
-    {elseif $sUserData.additional.payment.class == "StripePaymentDigitalWalletPayments"}
+    {elseif $sUserData.additional.payment.class == "StripePaymentDigitalWallets"}
         {* Include and set up the Stripe SDK *}
         <script type="text/javascript" src="https://js.stripe.com/v3/"></script>
         <script type="text/javascript">
@@ -51,20 +51,20 @@
              * Uncomment the following line the speed up development by including the custom
              * Stripe payment library instead of loading it from the compiled Javascript file.
              *}
-            {* {include file="frontend/_public/src/javascript/stripe_payment_digital_wallet_payments.js"} *}
+            {* {include file="frontend/_public/src/javascript/stripe_payment_digital_wallets.js"} *}
 
             document.stripeJQueryReady(function() {
                 // Define the StripePaymentApplePay configuration
                 var stripePublicKey = '{$stripePayment.publicKey}';
                 var stripePaymentSnippets = {
                     error: {
-                        connectionNotSecure: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallet_payments name=error/connection_not_secure}{/stripe_snippet}',
-                        invalidConfig: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallet_payments name=error/invalid_config}{/stripe_snippet}',
-                        notAvailable: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallet_payments name=error/not_available}{/stripe_snippet}',
-                        paymentCancelled: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallet_payments name=error/payment_cancelled}{/stripe_snippet}',
-                        title: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallet_payments name=error/title}{/stripe_snippet}',
+                        connectionNotSecure: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallets name=error/connection_not_secure}{/stripe_snippet}',
+                        invalidConfig: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallets name=error/invalid_config}{/stripe_snippet}',
+                        notAvailable: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallets name=error/not_available}{/stripe_snippet}',
+                        paymentCancelled: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallets name=error/payment_cancelled}{/stripe_snippet}',
+                        title: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallets name=error/title}{/stripe_snippet}',
                     },
-                    shippingCost: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallet_payments name=shipping_cost}{/stripe_snippet}',
+                    shippingCost: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallets name=shipping_cost}{/stripe_snippet}',
                 };
                 var paymentMethod = '{$sUserData.additional.payment.name}'.replace('stripe_payment_', '');
                 var paymentMethodName = '';
@@ -83,16 +83,16 @@
                 var stripePaymentConfig = {
                     countryCode: '{$sUserData.additional.country.countryiso}',
                     currencyCode: '{$stripePayment.currency}',
-                    statementDescriptor: '{$stripePayment.digitalWalletPaymentsStatementDescriptor}',
+                    statementDescriptor: '{$stripePayment.digitalWalletsStatementDescriptor}',
                     amount: '{$sAmount}',
                     basketContent: {$sBasket.content|json_encode},
                     shippingCost: {$sBasket.sShippingcosts},
                 };
 
-                // Initialize StripePaymentDigitalWalletPayments once the DOM is ready
+                // Initialize StripePaymentDigitalWallets once the DOM is ready
                 $(document).ready(function() {
-                    StripePaymentDigitalWalletPayments.snippets = stripePaymentSnippets;
-                    StripePaymentDigitalWalletPayments.init(stripePublicKey, stripePaymentConfig, paymentMethod);
+                    StripePaymentDigitalWallets.snippets = stripePaymentSnippets;
+                    StripePaymentDigitalWallets.init(stripePublicKey, stripePaymentConfig, paymentMethod);
                 });
             });
         </script>

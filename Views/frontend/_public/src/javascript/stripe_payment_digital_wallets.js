@@ -7,7 +7,7 @@
 /**
  * A common utility object for handling digital wallet payments using Stripe.js in the StripePayment plugin.
  */
-var StripePaymentDigitalWalletPayments = {
+var StripePaymentDigitalWallets = {
     /**
      * The payment request containing all information for processing the payment upon checkout.
      */

@@ -32,7 +32,7 @@ class Payment implements SubscriberInterface
     public function onAddPaymentClass(\Enlight_Event_EventArgs $args)
     {
         $dirs = $args->getReturn();
-        $dirs['StripePaymentDigitalWalletPayments'] = 'Shopware\\Plugins\\StripePayment\\Components\\PaymentMethods\\DigitalWalletPayments';
+        $dirs['StripePaymentDigitalWallets'] = 'Shopware\\Plugins\\StripePayment\\Components\\PaymentMethods\\DigitalWallets';
         $dirs['StripePaymentBancontact'] = 'Shopware\\Plugins\\StripePayment\\Components\\PaymentMethods\\Bancontact';
         $dirs['StripePaymentCard'] = 'Shopware\\Plugins\\StripePayment\\Components\\PaymentMethods\\Card';
         $dirs['StripePaymentIdeal'] = 'Shopware\\Plugins\\StripePayment\\Components\\PaymentMethods\\Ideal';
