@@ -139,7 +139,7 @@ var StripePaymentDigitalWalletPayments = {
             }
         });
 
-        // Add a listener for once the payment is created. This happens once the user selects "pay" in his browser
+        // Add a listener for once the payment is created. This happens once the user selects "pay" in their browser
         // specific payment popup
         me.paymentRequest.on('paymentmethod', function (paymentResponse) {
             me.paymentMethodId = paymentResponse.paymentMethod.id;
