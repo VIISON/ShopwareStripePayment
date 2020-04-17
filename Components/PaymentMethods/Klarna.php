@@ -103,7 +103,7 @@ class Klarna extends AbstractStripePaymentMethod
     /**
      * @inheritdoc
      */
-    public function includeStatmentDescriptorInCharge()
+    public function includeStatementDescriptorInCharge()
     {
         // Klarna payments require the statement descriptor to be part of their source
         return false;

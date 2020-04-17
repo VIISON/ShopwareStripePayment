@@ -2,10 +2,12 @@
 
 ### en
 
+* Adds support for Google Pay.
 * Adds support for Klarna.
 
 ### de
 
+* Fügt die Unterstützung für Google Pay hinzu.
 * Fügt die Unterstützung für Klarna hinzu.
 
 

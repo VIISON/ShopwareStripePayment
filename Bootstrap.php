@@ -299,6 +299,24 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                     ]
                 );
             case '5.2.0':
+                // Add an inactive payment method for Google Pay payments
+                $this->createPaymentMethodIfNotExists([
+                    'name' => 'stripe_payment_google_pay',
+                    'description' => 'Google Pay (via Stripe)',
+                    'template' => '',
+                    'action' => 'StripePaymentIntent',
+                    'class' => 'StripePaymentDigitalWallets',
+                    'additionalDescription' => '',
+                    'active' => false,
+                ]);
+                $applePayPaymentMethod = $this->get('models')->getRepository(PaymentMethod::class)->findOneBy([
+                    'name' => 'stripe_payment_apple_pay',
+                ]);
+                if ($applePayPaymentMethod) {
+                    $applePayPaymentMethod->setClass('StripePaymentDigitalWallets');
+                    $applePayPaymentMethod->setAction('StripePaymentIntent');
+                    $this->get('models')->flush($applePayPaymentMethod);
+                }
                 // Add an inactive payment method for Klarna payments
                 $this->createPaymentMethodIfNotExists([
                     'name' => 'stripe_payment_klarna',

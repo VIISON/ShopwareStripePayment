@@ -249,7 +249,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         ];
         // Add a statement descriptor, if necessary
         $paymentMethod = $this->getStripePaymentMethod();
-        if ($paymentMethod->includeStatmentDescriptorInCharge()) {
+        if ($paymentMethod->includeStatementDescriptorInCharge()) {
             $chargeData['statement_descriptor'] = mb_substr($paymentMethod->getStatementDescriptor(), 0, 22);
         }
         // Try to add a customer reference to the charge
@@ -303,7 +303,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         $paymentMethod = $this->get('modules')->Admin()->sInitiatePaymentClass([
             'class' => $paymentInstances,
         ]);
-        if ($paymentMethod->includeStatmentDescriptorInCharge()) {
+        if ($paymentMethod->includeStatementDescriptorInCharge()) {
             $chargeData['statement_descriptor'] = mb_substr($paymentMethod->getStatementDescriptor(), 0, 22);
         }
 

@@ -5,8 +5,10 @@
         {* Inject the payment logos before the additional description *}
         <div class="panel--table stripe-payment-provider-logos">
             <div class="panel--tr">
-            {if $payment_mean.class == "StripePaymentApplePay"}
+            {if $payment_mean.name == "stripe_payment_apple_pay"}
                 <div class="panel--td stripe-payment-provider-logo apple-pay"></div>
+            {elseif $payment_mean.name == "stripe_payment_google_pay"}
+                <div class="panel--td stripe-payment-provider-logo google-pay"></div>
             {elseif $payment_mean.class == "StripePaymentBancontact"}
                 <div class="panel--td stripe-payment-provider-logo bancontact"></div>
             {elseif $payment_mean.class == "StripePaymentCard"}

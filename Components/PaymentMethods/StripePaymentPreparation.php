@@ -17,7 +17,7 @@ trait StripePaymentPreparation
      *
      * @return boolean
      */
-    abstract public function includeStatmentDescriptorInCharge();
+    abstract public function includeStatementDescriptorInCharge();
 
     /**
      * @inheritdoc
