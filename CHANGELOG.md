@@ -1,3 +1,14 @@
+## NEXT MINOR RELEASE
+
+### en
+
+* Adds support for Google Pay.
+
+### de
+
+* Fügt die Unterstützung für Google Pay hinzu.
+
+
 ## 5.2.0
 
 ### en

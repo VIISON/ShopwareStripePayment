@@ -43,7 +43,7 @@ class Sepa extends AbstractStripePaymentMethod
     /**
      * @inheritdoc
      */
-    public function includeStatmentDescriptorInCharge()
+    public function includeStatementDescriptorInCharge()
     {
         // SEPA sources can be reused several times and hence should contain a statement descriptor in the charge
         return true;
