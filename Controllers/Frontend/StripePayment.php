@@ -389,7 +389,8 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
     {
         // Save the order with a temporary transactionId
         $orderNumber = $this->saveOrder(
-            'src_pending_'. mb_substr($source->id, 4), // transactionId
+            // The transactionId needs to be unique because of this we use the sourceId with a prefix
+            'pending_'. $source->id, // transactionId
             $source->id, // paymentUniqueId
             Status::PAYMENT_STATE_OPEN // paymentStatusId
         );
@@ -399,7 +400,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
             return null;
         }
 
-        return $this->get('models')->getRepository('Shopware\\Models\\Order\\Order')->findOneBy([
+        return $this->get('models')->getRepository(Order::class)->findOneBy([
             'number' => $orderNumber,
         ]);
     }
@@ -412,10 +413,10 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
      */
     protected function updateOrderWithCharge(Stripe\Charge $charge)
     {
-        $order = $this->get('models')->getRepository('Shopware\\Models\\Order\\Order')->findOneBy([
+        $order = $this->get('models')->getRepository(Order::class)->findOneBy([
             'temporaryId' => $charge->source->id,
         ]);
-        $paymentStatus = $this->get('models')->getRepository('Shopware\\Models\\Order\\Status')->findOneBy([
+        $paymentStatus = $this->get('models')->getRepository(Status::class)->findOneBy([
             'id' => ($charge->status === 'succeeded') ? Status::PAYMENT_STATE_COMPLETELY_PAID : Status::PAYMENT_STATE_OPEN,
         ]);
 
@@ -426,11 +427,9 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         }
         $this->get('models')->flush($order);
 
-        $orderNumber = $order->getNumber();
-
         try {
             // Save the order number in the charge description
-            $charge->description .= ' / Order ' . $orderNumber;
+            $charge->description .= ' / Order ' . $order->getNumber();
             $charge->save();
         } catch (Exception $e) {
             $this->get('pluginlogger')->error(
@@ -504,7 +503,7 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
      * process involves e.g. a redirect to the payment provider, the 'source.chargeable' event might
      * arrive at the shop earlier than the redirect returns. By pausing the webhook handler, we give the redirect a
      * head start to complete the order creation. After waiting, the database is checked for an
-     * order that used the event's source. If an order is found and its transactionId starts with 'src_pending',
+     * order that used the event's source. If an order is found and its transactionId starts with 'pending',
      * the source and order are used to create a charge and the order gets updated with the charge.
      * If no such order is found, check the Shopware session for the 'stripePayment->processingSourceId' field and
      * make sure the ID matches the source contained in the event because we need the users session to
@@ -524,11 +523,9 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
         // a redirect
         $order = $this->findOrderForWebhookEvent($event);
         if ($order) {
-            if (mb_substr($order->getTransactionId(), 0, 11) !== 'src_pending') {
+            if (mb_substr($order->getTransactionId(), 0, 7) !== 'pending') {
                 return;
             }
-            $charge = $this->createChargeForOrder($source, $order);
-            $order = $this->updateOrderWithCharge($charge);
             $this->get('pluginlogger')->info(
                 'StripePayment: Updated order after receiving "source.chargeable" webhook event',
                 [
@@ -536,6 +533,8 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
                     'eventId' => $event->id,
                 ]
             );
+            $charge = $this->createChargeForOrder($source, $order);
+            $this->updateOrderWithCharge($charge);
 
             return;
         }
