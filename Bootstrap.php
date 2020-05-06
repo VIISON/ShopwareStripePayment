@@ -317,6 +317,16 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                     $applePayPaymentMethod->setAction('StripePaymentIntent');
                     $this->get('models')->flush($applePayPaymentMethod);
                 }
+                // Add an inactive payment method for Klarna payments
+                $this->createPaymentMethodIfNotExists([
+                    'name' => 'stripe_payment_klarna',
+                    'description' => 'Klarna (via Stripe)',
+                    'template' => '',
+                    'action' => 'StripePayment',
+                    'class' => 'StripePaymentKlarna',
+                    'additionalDescription' => '',
+                    'active' => false,
+                ]);
                 // Next release
 
                 break;
