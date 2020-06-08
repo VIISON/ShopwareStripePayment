@@ -1,3 +1,14 @@
+## NEXT PATCH RELEASE
+
+### en
+
+* Fixes a bug that caused Klarna not to work under Shopware versions prior to 5.5. 
+
+### de
+
+* Behebt einen Fehler, der dazu führte, das Klarna unter Shopware-Versionen vor 5.5 nicht funktionierte. 
+
+
 ## 5.3.0
 
 ### en
