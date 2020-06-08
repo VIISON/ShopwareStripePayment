@@ -25,7 +25,7 @@ class Klarna extends AbstractStripePaymentMethod
                 'description' => $item['articlename'],
                 'quantity' => $item['quantity'],
                 'currency' => $currencyCode,
-                'amount' => round($item['amountNumeric'] * 100),
+                'amount' => round($item['priceNumeric'] * $item['quantity'] * 100),
             ];
         }, $basket['content']);
 
