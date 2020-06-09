@@ -2,7 +2,7 @@
 
 ### en
 
-* Fixes a bug that prevented Klarna payments from working on Shopware version older than 5.5.0. 
+* Fixes a bug that prevented Klarna payments from working on Shopware version older than 5.5.0.
 
 ### de
 
