@@ -328,6 +328,8 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                     'active' => false,
                 ]);
             case '5.3.0':
+                // Nothing to do
+            case '5.3.1':
                 // Next release
 
                 break;
