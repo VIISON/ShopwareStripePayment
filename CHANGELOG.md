@@ -1,3 +1,14 @@
+## NEXT PATCH RELEASE
+
+### en
+
+* Fixes a bug that prevented Klarna payments from working on Shopware version older than 5.5.0. 
+
+### de
+
+* Behebt einen Fehler, der unter Shopware-Versionen älter als 5.5.0 dazu führte, dass Zahlungen mittels Klarna nicht funktionierten.
+
+
 ## 5.3.0
 
 ### en
