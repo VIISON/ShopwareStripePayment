@@ -1,3 +1,13 @@
+## NEXT PATCH RELEASE
+
+### en
+
+* Fixes a bug that caused items without price to prevent payment via Apple Pay or Google Pay.
+
+### de
+
+* Behebt einen Fehler, der dazu führte, dass Artikel ohne Preis die Zahlung mittels Apple Pay oder Google Pay verhinderten.
+
 ## 5.3.1
 
 ### en
