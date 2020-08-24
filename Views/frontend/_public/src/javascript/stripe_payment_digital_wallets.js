@@ -66,12 +66,18 @@ var StripePaymentDigitalWallets = {
             return undefined;
         }
 
-        this.paymentDisplayItems = config.basketContent.map(function (item) {
-            return {
-                label: item.articlename,
-                amount: Math.round(item.amountNumeric * 100),
-            };
-        });
+        this.paymentDisplayItems = config.basketContent
+            .filter(function (item) {
+                return item.amountNumeric || item.priceNumeric;
+            })
+            .map(function (item) {
+                const itemPrice = parseFloat(item.amountNumeric || item.priceNumeric);
+
+                return {
+                    label: item.articlename,
+                    amount: Math.round(itemPrice * 100),
+                };
+            });
         if (config.shippingCost) {
             this.paymentDisplayItems.push({
                 label: this.snippets.shippingCost,
