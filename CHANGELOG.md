@@ -1,3 +1,14 @@
+## NEXT_PATCH_RELEASE
+
+### en
+
+* Improves the compatibility with _Quotations powered by Pickware_.
+
+### de
+
+* Verbessert die Kompatibilität mit _Angebote powered by Pickware_.
+
+
 ## 5.3.1
 
 ### en

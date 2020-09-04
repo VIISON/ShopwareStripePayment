@@ -248,7 +248,7 @@ var StripePaymentDigitalWallets = {
      * @return jQuery The button element that submits the checkout.
      */
     findSubmitButton: function () {
-        return $('.confirm--content .main--actions button[type="submit"]');
+        return $('.confirm--content .main--actions > button[type="submit"]');
     },
 
     /**
