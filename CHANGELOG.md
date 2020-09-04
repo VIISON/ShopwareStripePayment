@@ -1,3 +1,14 @@
+## NEXT_PATCH_RELEASE
+
+### en
+
+* Improves the compatibility with the Pickware Offer Management plugin.
+
+### de
+
+* Verbessert die Kompatibilität mit dem Pickware Angebote Plugin.
+
+
 ## 5.3.1
 
 ### en
