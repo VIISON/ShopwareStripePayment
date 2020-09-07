@@ -1,4 +1,4 @@
-## NEXT_PATCH_RELEASE
+## 5.3.2
 
 ### en
 
