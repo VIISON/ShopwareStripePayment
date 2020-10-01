@@ -135,6 +135,14 @@ class Shopware_Controllers_Frontend_StripePayment extends Shopware_Controllers_F
             return;
         }
 
+        // Cancel order when payment was declined
+        if ($this->Request()->getParam('redirect_status') === 'failed') {
+            $message = $this->getStripePaymentMethod()->getSnippet('payment_error/message/redirect/source_declined');
+            $this->cancelCheckout($message);
+
+            return;
+        }
+
         if ($source->status === 'chargeable') {
             // Use the source to create the charge and save the order
             try {
