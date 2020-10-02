@@ -1,6 +1,11 @@
 name: CI
 
-on: [push]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    # Build all pull requests, regardless of what their base branch is
+    branches: ['**']
 
 jobs:
   lint:
