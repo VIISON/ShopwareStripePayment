@@ -8,6 +8,18 @@
 
 * Behebt einen Fehler, der dazu führte, dass Artikel ohne Preis die Zahlung mittels Apple Pay oder Google Pay verhinderten.
 
+
+## 5.3.2
+
+### en
+
+* Improves the compatibility with _Quotations powered by Pickware_.
+
+### de
+
+* Verbessert die Kompatibilität mit _Angebote powered by Pickware_.
+
+
 ## 5.3.1
 
 ### en

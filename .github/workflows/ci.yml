@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    # Build all pull requests, regardless of what their base branch is
+    branches: ['**']
+
+jobs:
+  lint:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        php: ["5.6", "7.1", "7.2"]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl, dom, fileinfo, gd, iconv, intl, json, mbstring, mbstring, pdo, phar, xml, zip
+      - run: composer install
+      - run: composer phplint
+      - run: composer phpcs
