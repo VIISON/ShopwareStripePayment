@@ -67,11 +67,8 @@ var StripePaymentDigitalWallets = {
         }
 
         this.paymentDisplayItems = config.basketContent
-            .filter(function (item) {
-                return item.amountNumeric || item.priceNumeric;
-            })
             .map(function (item) {
-                const itemPrice = parseFloat(item.amountNumeric || item.priceNumeric);
+                const itemPrice = parseFloat(item.amountNumeric || item.priceNumeric || 0);
 
                 return {
                     label: item.articlename,
