@@ -2,7 +2,7 @@
 
 ### en
 
-* Fixes a bug that caused items without price to prevent payment via Apple Pay or Google Pay.
+* Fixes a bug that prevent payments via Apple Pay or Google Pay if an order item did not have a price.
 
 ### de
 
