@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
     "content-hash": "b2708711818d8335385d69a8f5873c97",
@@ -172,17 +172,63 @@
     ],
     "packages-dev": [
         {
-            "name": "squizlabs/php_codesniffer",
-            "version": "3.2.2",
+            "name": "react/promise",
+            "version": "v2.8.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "d7c00c3000ac0ce79c96fcbfef86b49a71158cd1"
+                "url": "https://github.com/reactphp/promise.git",
+                "reference": "f3cff96a19736714524ca0dd1d4130de73dbbbc4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/d7c00c3000ac0ce79c96fcbfef86b49a71158cd1",
-                "reference": "d7c00c3000ac0ce79c96fcbfef86b49a71158cd1",
+                "url": "https://api.github.com/repos/reactphp/promise/zipball/f3cff96a19736714524ca0dd1d4130de73dbbbc4",
+                "reference": "f3cff96a19736714524ca0dd1d4130de73dbbbc4",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^7.0 || ^6.5 || ^5.7 || ^4.8.36"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "React\\Promise\\": "src/"
+                },
+                "files": [
+                    "src/functions_include.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jan Sorgalla",
+                    "email": "jsorgalla@gmail.com"
+                }
+            ],
+            "description": "A lightweight implementation of CommonJS Promises/A for PHP",
+            "keywords": [
+                "promise",
+                "promises"
+            ],
+            "time": "2020-05-12T15:16:56+00:00"
+        },
+        {
+            "name": "squizlabs/php_codesniffer",
+            "version": "3.5.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
+                "reference": "9d583721a7157ee997f235f327de038e7ea6dac4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/9d583721a7157ee997f235f327de038e7ea6dac4",
+                "reference": "9d583721a7157ee997f235f327de038e7ea6dac4",
                 "shasum": ""
             },
             "require": {
@@ -192,7 +238,7 @@
                 "php": ">=5.4.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0"
+                "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
             "bin": [
                 "bin/phpcs",
@@ -215,32 +261,33 @@
                 }
             ],
             "description": "PHP_CodeSniffer tokenizes PHP, JavaScript and CSS files and detects violations of a defined set of coding standards.",
-            "homepage": "http://www.squizlabs.com/php-codesniffer",
+            "homepage": "https://github.com/squizlabs/PHP_CodeSniffer",
             "keywords": [
                 "phpcs",
                 "standards"
             ],
-            "time": "2017-12-19T21:44:46+00:00"
+            "time": "2020-10-23T02:01:07+00:00"
         },
         {
             "name": "viison/composer-git-hooks-installer-plugin",
-            "version": "1.3.0",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/VIISON/composer-git-hooks-installer-plugin.git",
-                "reference": "33091a2533fc480da0aefbaafe54f211c08a79b2"
+                "url": "https://github.com/pickware/composer-git-hooks-installer-plugin.git",
+                "reference": "9335eedb5163acf629b5c26fb6a78b529590bc2a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/VIISON/composer-git-hooks-installer-plugin/zipball/33091a2533fc480da0aefbaafe54f211c08a79b2",
-                "reference": "33091a2533fc480da0aefbaafe54f211c08a79b2",
+                "url": "https://api.github.com/repos/pickware/composer-git-hooks-installer-plugin/zipball/9335eedb5163acf629b5c26fb6a78b529590bc2a",
+                "reference": "9335eedb5163acf629b5c26fb6a78b529590bc2a",
                 "shasum": ""
             },
             "require": {
-                "composer-plugin-api": "^1.0"
+                "composer-plugin-api": "^1.0 || ^2.0",
+                "react/promise": "^v2.8.0"
             },
             "require-dev": {
-                "composer/composer": "^1.3"
+                "composer/composer": "^1.3 || ^2.0"
             },
             "type": "composer-plugin",
             "extra": {
@@ -251,24 +298,28 @@
                     "VIISON\\Composer\\": "src/"
                 }
             },
+            "license": [
+                "MIT"
+            ],
+            "description": "A composer installer plugin that installs required git hooks from dependencies.",
             "support": {
-                "source": "https://github.com/VIISON/composer-git-hooks-installer-plugin/tree/1.3.0",
-                "issues": "https://github.com/VIISON/composer-git-hooks-installer-plugin/issues"
+                "source": "https://github.com/pickware/composer-git-hooks-installer-plugin/tree/1.4.0",
+                "issues": "https://github.com/pickware/composer-git-hooks-installer-plugin/issues"
             },
-            "time": "2017-07-21T14:29:37+00:00"
+            "time": "2020-10-26T15:18:55+00:00"
         },
         {
             "name": "viison/style-guide",
-            "version": "4.2.1",
+            "version": "5.12.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/VIISON/style-guide.git",
-                "reference": "57f3e62a7f3345759293fc9a93de228af5e10745"
+                "url": "https://github.com/pickware/style-guide.git",
+                "reference": "df03a4febbfaa74d1fa652426f3626257df70aef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/VIISON/style-guide/zipball/57f3e62a7f3345759293fc9a93de228af5e10745",
-                "reference": "57f3e62a7f3345759293fc9a93de228af5e10745",
+                "url": "https://api.github.com/repos/pickware/style-guide/zipball/df03a4febbfaa74d1fa652426f3626257df70aef",
+                "reference": "df03a4febbfaa74d1fa652426f3626257df70aef",
                 "shasum": ""
             },
             "require": {
@@ -294,10 +345,10 @@
                 ]
             },
             "support": {
-                "source": "https://github.com/VIISON/style-guide/tree/4.2.1",
-                "issues": "https://github.com/VIISON/style-guide/issues"
+                "source": "https://github.com/pickware/style-guide/tree/5.12.0",
+                "issues": "https://github.com/pickware/style-guide/issues"
             },
-            "time": "2018-12-13T15:05:53+00:00"
+            "time": "2020-08-18T15:25:32+00:00"
         }
     ],
     "aliases": [],
@@ -308,5 +359,6 @@
     "platform": {
         "php": ">=5.6.4"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }
