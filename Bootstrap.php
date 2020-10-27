@@ -332,6 +332,8 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
             case '5.3.1':
                 // Nothing to do
             case '5.3.2':
+                // Nothing to do
+            case '5.3.3':
                 // Next release
 
                 break;

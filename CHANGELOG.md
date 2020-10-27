@@ -1,11 +1,13 @@
-## NEXT PATCH RELEASE
+## 5.3.3
 
 ### en
 
+* Improves the handling of declined Klarna payments by redirecting the customer back to the checkout.
 * Fixes a bug that prevent payments via Apple Pay or Google Pay if an order item did not have a price.
 
 ### de
 
+* Verbessert die Handhabung von abgelehnten Klarna-Zahlungen, sodass der Kunde in diesem Fall zurück zum Checkout gelangt.
 * Behebt einen Fehler, der dazu führte, dass Artikel ohne Preis die Zahlung mittels Apple Pay oder Google Pay verhinderten.
 
 
