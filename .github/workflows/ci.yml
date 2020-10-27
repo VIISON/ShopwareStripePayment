@@ -21,6 +21,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: curl, dom, fileinfo, gd, iconv, intl, json, mbstring, mbstring, pdo, phar, xml, zip
+          tools: composer:v1
       - run: composer install
       - run: composer phplint
       - run: composer phpcs
