@@ -44,7 +44,7 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.Position', {
             // Add the refund button
             this.stripeRefundPositionButton = Ext.create('Ext.button.Button', {
                 iconCls: 'sprite-money--minus',
-                text: '{s name=order/view/detail/position/refund_button}{/s}',
+                text: '{s name="order/view/detail/position/refund_button"}{/s}',
                 disabled: true,
                 scope: this,
                 handler: function() {
@@ -208,13 +208,13 @@ Ext.define('Shopware.apps.StripePayment.Order.controller.Detail', {
                     var communicationPanel = Ext.ComponentQuery.query('order-detail-window order-communication-panel')[0];
                     communicationPanel.internalTextArea.setValue(responseObject.internalComment);
                     // Show a growl notification and close the window
-                    Shopware.Notification.createGrowlMessage('{s name=order/controller/detail/success_notification/title}{/s}', '{s name=order/controller/detail/success_notification/message}{/s}', 'stripe-payment-refund');
+                    Shopware.Notification.createGrowlMessage('{s name="order/controller/detail/success_notification/title"}{/s}', '{s name="order/controller/detail/success_notification/message"}{/s}', 'stripe-payment-refund');
                     refundWindow.close()
                 } else {
                     // Show an alert
-                    var message = '{s name=order/controller/detail/error_alert/message}{/s} ';
-                    message += (responseObject.message !== undefined) ? responseObject.message : '{s name=order/controller/detail/error_alert/message/unknown}{/s}';
-                    Ext.MessageBox.alert('{s name=order/controller/detail/error_alert/title}{/s}', message);
+                    var message = '{s name="order/controller/detail/error_alert/message"}{/s} ';
+                    message += (responseObject.message !== undefined) ? responseObject.message : '{s name="order/controller/detail/error_alert/message/unknown"}{/s}';
+                    Ext.MessageBox.alert('{s name="order/controller/detail/error_alert/title"}{/s}', message);
                 }
             }
         });
