@@ -128,7 +128,7 @@ trait StripePaymentPreparation
     {
         return [
             'platform_name' => Util::STRIPE_PLATFORM_NAME,
-            'shopware_session_id' => $this->get('SessionID'),
+            'shopware_session_id' => $this->get('sessionid'),
         ];
     }
 
