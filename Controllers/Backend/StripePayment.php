@@ -6,6 +6,7 @@
 // holder, unless otherwise permitted by law.
 
 use Shopware\Plugins\StripePayment\Util;
+use Stripe\Refund;
 
 /**
  * The general backend controller, which handles refundings.
@@ -72,11 +73,10 @@ class Shopware_Controllers_Backend_StripePayment extends Shopware_Controllers_Ba
         // Load the charge and add new refund to it
         try {
             Util::initStripeAPI();
-            $charge = Stripe\Charge::retrieve($order->getTransactionId());
-            $charge->refund([
+            Refund::create([
+                'charge' => $order->getTransactionId(),
                 'amount' => intval($amount * 100),
             ]);
-            $refund = $charge->refunds[count($charge->refunds) - 1];
         } catch (Exception $e) {
             // Try to get the error response
             if ($e->getJsonBody() !== null) {
