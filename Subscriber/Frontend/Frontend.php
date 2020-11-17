@@ -73,7 +73,7 @@ class Frontend implements SubscriberInterface
             ]
         );
         if ($session) {
-            \Enlight_Components_Session::setId($sessionId);
+            session_id($sessionId);
         }
     }
 
