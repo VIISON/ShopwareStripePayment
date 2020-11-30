@@ -29,7 +29,7 @@
                 shippingPayment.$el.find('.stripe-card-cvc--help').swModalbox();
             });
 
-            var stripePublicKey = '{$stripePayment.publicKey}';
+            var stripePublicKey = '{$stripePayment.publicKey|escape:"javascript"}';
 
             // Define the StripePaymentCard configuration
             var stripePaymentCardSnippets = {
@@ -57,13 +57,13 @@
                 }
             };
             var stripePaymentCardConfig = {
-                locale: '{$stripePayment.locale}'
+                locale: '{$stripePayment.locale|escape:"javascript"}'
             };
-            if ('{$stripePayment.rawSelectedCard}') {
-                stripePaymentCardConfig.card = JSON.parse('{$stripePayment.rawSelectedCard}');
+            if ('{$stripePayment.rawSelectedCard|escape:"javascript"}') {
+                stripePaymentCardConfig.card = JSON.parse('{$stripePayment.rawSelectedCard|escape:"javascript"}');
             }
-            if ('{$stripePayment.rawAvailableCards}') {
-                stripePaymentCardConfig.allCards = JSON.parse('{$stripePayment.rawAvailableCards}');
+            if ('{$stripePayment.rawAvailableCards|escape:"javascript"}') {
+                stripePaymentCardConfig.allCards = JSON.parse('{$stripePayment.rawAvailableCards|escape:"javascript"}');
             }
 
             // Initialize StripePaymentCard once the DOM is ready
@@ -87,11 +87,11 @@
                 }
             };
             var stripePaymentSepaConfig = {
-                currency: '{$stripePayment.currency}',
-                locale: '{$stripePayment.locale}',
+                currency: '{$stripePayment.currency|escape:"javascript"}',
+                locale: '{$stripePayment.locale|escape:"javascript"}',
             };
-            if ('{$stripePayment.rawSepaSource}') {
-                stripePaymentSepaConfig.sepaSource = JSON.parse('{$stripePayment.rawSepaSource}');
+            if ('{$stripePayment.rawSepaSource|escape:"javascript"}') {
+                stripePaymentSepaConfig.sepaSource = JSON.parse('{$stripePayment.rawSepaSource|escape:"javascript"}');
             }
 
             // Initialize StripePaymentSepa once the DOM is ready

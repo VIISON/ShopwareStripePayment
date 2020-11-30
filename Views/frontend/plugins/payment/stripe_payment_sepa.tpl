@@ -22,28 +22,28 @@
             <div class="panel--tr stripe-sepa-field">
                 <label>
                     <span class="panel--td">{s namespace="frontend/plugins/payment/stripe_payment/sepa" name="form/account_owner"}{/s} *</span>
-                    <input type="text" class="stripe-sepa-account-owner panel--td is--required" name="account_owner" required="required" value="{$sUserData.billingaddress.firstname} {$sUserData.billingaddress.lastname}">
+                    <input type="text" class="stripe-sepa-account-owner panel--td is--required" name="account_owner" required="required" value="{$sUserData.billingaddress.firstname|escape:"htmlall"} {$sUserData.billingaddress.lastname|escape:"htmlall"}">
                 </label>
             </div>
             {* Street *}
             <div class="panel--tr stripe-sepa-field">
                 <label>
                     <span class="panel--td">{s namespace="frontend/plugins/payment/stripe_payment/sepa" name="form/street"}{/s} *</span>
-                    <input type="text" class="stripe-sepa-street panel--td is--required" name="street" required="required" value="{$sUserData.billingaddress.street}{if $sUserData.billingaddress.streetnumber} {$sUserData.billingaddress.streetnumber}{/if}">
+                    <input type="text" class="stripe-sepa-street panel--td is--required" name="street" required="required" value="{$sUserData.billingaddress.street|escape:"htmlall"}{if $sUserData.billingaddress.streetnumber} {$sUserData.billingaddress.streetnumber|escape:"htmlall"}{/if}">
                 </label>
             </div>
             {* ZIP code *}
             <div class="panel--tr stripe-sepa-field">
                 <label>
                     <span class="panel--td">{s namespace="frontend/plugins/payment/stripe_payment/sepa" name="form/zip_code"}{/s} *</span>
-                    <input type="text" class="stripe-sepa-zip-code panel--td is--required" name="zip_code" required="required" value="{$sUserData.billingaddress.zipcode}">
+                    <input type="text" class="stripe-sepa-zip-code panel--td is--required" name="zip_code" required="required" value="{$sUserData.billingaddress.zipcode|escape:"htmlall"}">
                 </label>
             </div>
             {* City *}
             <div class="panel--tr stripe-sepa-field">
                 <label>
                     <span class="panel--td">{s namespace="frontend/plugins/payment/stripe_payment/sepa" name="form/city"}{/s} *</span>
-                    <input type="text" class="stripe-sepa-city panel--td is--required" name="city" required="required" value="{$sUserData.billingaddress.city}">
+                    <input type="text" class="stripe-sepa-city panel--td is--required" name="city" required="required" value="{$sUserData.billingaddress.city|escape:"htmlall"}">
                 </label>
             </div>
             {* Country *}
@@ -53,8 +53,8 @@
                     <div class="select-field">
                         <select class="stripe-sepa-country panel--td is--required" name="country" required="required">
                             {foreach $stripePayment.sepaCountryList as $country}
-                                <option value="{$country.countryiso}"{if $country.id eq $sUserData.billingaddress.countryId} selected="selected"{/if}>
-                                    {$country.countryname}
+                                <option value="{$country.countryiso|escape:"htmlall"}"{if $country.id eq $sUserData.billingaddress.countryId} selected="selected"{/if}>
+                                    {$country.countryname|escape:"htmlall"}
                                 </option>
                             {/foreach}
                         </select>
