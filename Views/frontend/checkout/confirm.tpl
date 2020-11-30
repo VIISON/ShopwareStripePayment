@@ -30,14 +30,14 @@
                 }
 
                 // Insert a new element right below the general payment information showing details of the selected payment method
-                var paymentMethodClass = '{$sUserData.additional.payment.class}',
+                var paymentMethodClass = '{$sUserData.additional.payment.class|escape:"javascript"}',
                     content;
                 if (paymentMethodClass === 'StripePaymentCard') {
                     // Show details of selected credit card
-                    content = '{$stripePayment.selectedCard.name} | {$stripePayment.selectedCard.brand} | &bull;&bull;&bull;&bull;{$stripePayment.selectedCard.last4} | {$stripePayment.selectedCard.exp_month|string_format:"%02d"}/{$stripePayment.selectedCard.exp_year}';
+                    content = '{$stripePayment.selectedCard.name|escape:"javascript"|escape:"htmlall"} | {$stripePayment.selectedCard.brand|escape:"javascript"|escape:"htmlall"} | &bull;&bull;&bull;&bull;{$stripePayment.selectedCard.last4|escape:"javascript"|escape:"htmlall"} | {$stripePayment.selectedCard.exp_month|string_format:"%02d"|escape:"javascript"|escape:"htmlall"}/{$stripePayment.selectedCard.exp_year|escape:"javascript"|escape:"htmlall"}';
                 } else if (paymentMethodClass === 'StripePaymentSepa') {
                     // Show details of SEPA source
-                    content = '{$stripePayment.sepaSource.owner.name} | {$stripePayment.sepaSource.sepa_debit.country}&bull;&bull;&bull;&bull;{$stripePayment.sepaSource.sepa_debit.last4} | {$stripePayment.sepaSource.sepa_debit.mandate_reference}';
+                    content = '{$stripePayment.sepaSource.owner.name|escape:"javascript"|escape:"htmlall"} | {$stripePayment.sepaSource.sepa_debit.country|escape:"javascript"|escape:"htmlall"}&bull;&bull;&bull;&bull;{$stripePayment.sepaSource.sepa_debit.last4|escape:"javascript"|escape:"htmlall"} | {$stripePayment.sepaSource.sepa_debit.mandate_reference|escape:"javascript"|escape:"htmlall"}';
                 }
                 var element = $('<p class="stripe-payment-details is--bold">' + content + '</p>');
                 element.insertAfter('.payment--panel .payment--content .payment--method-info');
@@ -55,7 +55,7 @@
 
             document.stripeJQueryReady(function() {
                 // Define the StripePaymentApplePay configuration
-                var stripePublicKey = '{$stripePayment.publicKey}';
+                var stripePublicKey = '{$stripePayment.publicKey|escape:"javascript"}';
                 var stripePaymentSnippets = {
                     error: {
                         connectionNotSecure: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallets name=error/connection_not_secure}{/stripe_snippet}',
@@ -66,7 +66,7 @@
                     },
                     shippingCost: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallets name=shipping_cost}{/stripe_snippet}',
                 };
-                var paymentMethod = '{$sUserData.additional.payment.name}'.replace('stripe_payment_', '');
+                var paymentMethod = '{$sUserData.additional.payment.name|escape:"javascript"}'.replace('stripe_payment_', '');
                 var paymentMethodName = '';
                 switch (paymentMethod) {
                     case 'apple_pay':
@@ -81,12 +81,12 @@
                 stripePaymentSnippets.error.notAvailable = stripePaymentSnippets.error.notAvailable.replace('[0]', paymentMethodName);
 
                 var stripePaymentConfig = {
-                    countryCode: '{$sUserData.additional.country.countryiso}',
-                    currencyCode: '{$stripePayment.currency}',
-                    statementDescriptor: '{$stripePayment.digitalWalletsStatementDescriptor}',
-                    amount: '{$sAmount}',
+                    countryCode: '{$sUserData.additional.country.countryiso|escape:"javascript"}',
+                    currencyCode: '{$stripePayment.currency|escape:"javascript"}',
+                    statementDescriptor: '{$stripePayment.digitalWalletsStatementDescriptor|escape:"javascript"}',
+                    amount: '{$sAmount|escape:"javascript"}',
                     basketContent: {$sBasket.content|json_encode},
-                    shippingCost: {$sBasket.sShippingcosts},
+                    shippingCost: {$sBasket.sShippingcosts|escape:"javascript"},
                 };
 
                 // Initialize StripePaymentDigitalWallets once the DOM is ready
