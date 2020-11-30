@@ -1,3 +1,14 @@
+## NEXT PATCH RELEASE
+
+### en
+
+* Improves the security of the plugin against XSS attacks.
+
+### de
+
+* Verbessert die Sicherheit des Plugins gegenüber XSS-Angriffen.
+
+
 ## 5.3.3
 
 ### en
