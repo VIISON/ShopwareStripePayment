@@ -22,8 +22,8 @@
                                     {s namespace=frontend/plugins/payment/stripe_payment/card name=form/card_selection/new_card}{/s}
                                 </option>
                                 {foreach from=$stripePayment.availableCards item=card}
-                                    <option value="{$card.id}"}>
-                                        {$card.name} | {$card.brand} | &bull;&bull;&bull;&bull;{$card.last4} | {$card.exp_month|string_format:"%02d"}/{$card.exp_year}
+                                    <option value="{$card.id|escape:"htmlall"}">
+                                        {$card.name|escape:"htmlall"} | {$card.brand|escape:"htmlall"} | &bull;&bull;&bull;&bull;{$card.last4|escape:"htmlall"} | {$card.exp_month|string_format:"%02d"|escape:"htmlall"}/{$card.exp_year|escape:"htmlall"}
                                     </option>
                                 {/foreach}
                             </select>
@@ -35,7 +35,7 @@
             <div class="panel--tr stripe-card-field">
                 <label>
                     <span class="panel--td">{s namespace=frontend/plugins/payment/stripe_payment/card name=form/card/holder}{/s} *</span>
-                    <input type="text" size="20" class="stripe-card-holder panel--td" value="{$sUserData.billingaddress.firstname} {$sUserData.billingaddress.lastname}">
+                    <input type="text" size="20" class="stripe-card-holder panel--td" value="{$sUserData.billingaddress.firstname|escape:"htmlall"} {$sUserData.billingaddress.lastname|escape:"htmlall"}">
                 </label>
             </div>
             {* Card number *}
