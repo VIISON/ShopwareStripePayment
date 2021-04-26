@@ -10,10 +10,12 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 }
 
 use Shopware\Models\Config\Element;
+use Shopware\Models\Config\Form;
 use Shopware\Models\Payment\Payment as PaymentMethod;
 use Shopware\Plugins\StripePayment\Classes\ConfigFormInstallationHelper;
 use Shopware\Plugins\StripePayment\Classes\SmartyPlugins;
 use Shopware\Plugins\StripePayment\Subscriber;
+use Shopware\Plugins\StripePayment\Util;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -336,6 +338,27 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
             case '5.3.3':
                 // Nothing to do
             case '5.3.4':
+                // Check for a saved default grid label template
+                $configValue = $this->get('models')->getRepository('Shopware\\Models\\Config\\Element')->findOneBy([
+                    'name' => 'stripeAccountCountryIso',
+                ]);
+
+                if (!$configValue) {
+                    $defaultShopLocale = $this->get('db')->fetchOne(
+                        'SELECT locale FROM s_core_locales l JOIN s_core_shops s ON s.locale_id = l.id WHERE s.default = 1'
+                    );
+
+                    // Create new config element using a fake form, since all elements must belong to a form
+                    $configValue = new Element('string', 'stripeAccountCountryIso', []);
+                    /** @var Form $fakeForm */
+                    $fakeForm = $this->get('models')->getPartialReference('Shopware\\Models\\Config\\Form', 0);
+                    $configValue->setForm($fakeForm);
+                    $this->get('models')->persist($configValue);
+
+                    // Save the value
+                    $configValue->setValue($defaultShopLocale);
+                    $this->get('models')->flush($configValue);
+                }
                 // Next release
 
                 break;
@@ -357,6 +380,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                 'allowMotoTransactions',
                 'allowSavingCreditCard',
                 'showPaymentProviderLogos',
+                'stripeAccountCountryIso',
             ]
         );
 
@@ -386,6 +410,15 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
             's_user_attributes'
         ]);
 
+        $configValue = $this->get('models')->getRepository('Shopware\\Models\\Config\\Element')->findOneBy([
+            'name' => 'stripeAccountCountryIso',
+        ]);
+
+        if ($configValue) {
+            $this->get('models')->remove($configValue);
+            $this->get('models')->flush($configValue);
+        }
+
         return true;
     }
 
@@ -397,6 +430,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
         $this->get('events')->addSubscriber(new Subscriber\Payment());
         $this->get('events')->addSubscriber(new Subscriber\Backend\Index($this));
         $this->get('events')->addSubscriber(new Subscriber\Backend\Order($this));
+        $this->get('events')->addSubscriber(new Subscriber\Backend\ConfigSubscriber());
         $this->get('events')->addSubscriber(new Subscriber\Controllers($this));
         $this->get('events')->addSubscriber(new Subscriber\Frontend\Account($this));
         $this->get('events')->addSubscriber(new Subscriber\Frontend\Checkout($this));

@@ -81,7 +81,7 @@
                 stripePaymentSnippets.error.notAvailable = stripePaymentSnippets.error.notAvailable.replace('[0]', paymentMethodName);
 
                 var stripePaymentConfig = {
-                    countryCode: '{$sUserData.additional.country.countryiso|escape:"javascript"}',
+                    countryCode: '{$stripePayment.stripeAccountCountryIso|escape:"javascript"}',
                     currencyCode: '{$stripePayment.currency|escape:"javascript"}',
                     statementDescriptor: '{$stripePayment.digitalWalletsStatementDescriptor|escape:"javascript"}',
                     amount: '{$sAmount|escape:"javascript"}',
