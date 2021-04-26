@@ -268,6 +268,13 @@ class Util
         return trim($billingAddress->getFirstName() . ' ' . $billingAddress->getLastName());
     }
 
+    public static function getAccount()
+    {
+        self::initStripeAPI();
+
+        return Stripe\Account::retrieve();
+    }
+
     /**
      * Decodes the requests's JSON body and tries to retrieve the Stripe event whose
      * ID is contained in the request.
