@@ -343,21 +343,14 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                     'name' => 'stripeAccountCountryIso',
                 ]);
 
-                if (!$configValue) {
+                if (Util::getConfigValue('stripeAccountCountryIso')) {
                     $defaultShopLocale = $this->get('db')->fetchOne(
                         'SELECT locale FROM s_core_locales l JOIN s_core_shops s ON s.locale_id = l.id WHERE s.default = 1'
                     );
 
-                    // Create new config element using a fake form, since all elements must belong to a form
-                    $configValue = new Element('string', 'stripeAccountCountryIso', []);
-                    /** @var Form $fakeForm */
-                    $fakeForm = $this->get('models')->getPartialReference('Shopware\\Models\\Config\\Form', 0);
-                    $configValue->setForm($fakeForm);
-                    $this->get('models')->persist($configValue);
+                    $countryISO = explode('_', $defaultShopLocale)[1];
 
-                    // Save the value
-                    $configValue->setValue($defaultShopLocale);
-                    $this->get('models')->flush($configValue);
+                    Util::setConfigValue('stripeAccountCountryIso', 'string', $countryISO);
                 }
                 // Next release
 
@@ -380,7 +373,6 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                 'allowMotoTransactions',
                 'allowSavingCreditCard',
                 'showPaymentProviderLogos',
-                'stripeAccountCountryIso',
             ]
         );
 
@@ -410,14 +402,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
             's_user_attributes'
         ]);
 
-        $configValue = $this->get('models')->getRepository('Shopware\\Models\\Config\\Element')->findOneBy([
-            'name' => 'stripeAccountCountryIso',
-        ]);
-
-        if ($configValue) {
-            $this->get('models')->remove($configValue);
-            $this->get('models')->flush($configValue);
-        }
+        Util::removeConfigValue('stripeAccountCountryIso');
 
         return true;
     }

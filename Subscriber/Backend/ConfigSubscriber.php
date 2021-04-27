@@ -26,7 +26,7 @@ class ConfigSubscriber implements SubscriberInterface
     }
 
     /**
-     * Handle the creation and editing of new coupon document types
+     * Handle the retriving of the stripe account country and saving it to a hidden config value
      *
      * @param \Enlight_Hook_HookArgs $args
      */
@@ -39,24 +39,6 @@ class ConfigSubscriber implements SubscriberInterface
             return;
         }
 
-        $entityManager = Shopware()->Container()->get('models');
-
-        // Check for a saved default grid label template
-        $configValue = $entityManager->getRepository('Shopware\\Models\\Config\\Element')->findOneBy([
-            'name' => 'stripeAccountCountryIso',
-        ]);
-
-        if (!$configValue) {
-            // Create new config element using a fake form, since all elements must belong to a form
-            $configValue = new Element('string', 'stripeAccountCountryIso', []);
-            /** @var Form $fakeForm */
-            $fakeForm = $entityManager->getPartialReference('Shopware\\Models\\Config\\Form', 0);
-            $configValue->setForm($fakeForm);
-            $entityManager->persist($configValue);
-        }
-
-        // Save the value
-        $configValue->setValue(Util::getAccount()->country);
-        $entityManager->flush($configValue);
+        Util::setConfigValue('stripeAccountCountryIso', 'string', Util::getAccount()->country);
     }
 }
