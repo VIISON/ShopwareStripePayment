@@ -1,3 +1,14 @@
+## NEXT PATCH RELEASE
+
+### en
+
+* Fixes a bug that prevented payments with digital wallets (Apple Pay, Google Pay, ...) if the country of the customer and the country of the configured Stripe account differed.
+
+### de
+
+* Behebt einen Fehler, der dazu führte, dass Zahlungen mit Digital Wallets (Apple Pay, Google Pay, ...) nicht funktionierten, wenn sich das Land des Kunden und das des hinterlegten Stripe-Accounts unterscheiden.
+
+
 ## 5.3.4
 
 ### en
