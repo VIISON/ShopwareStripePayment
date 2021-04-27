@@ -270,6 +270,9 @@ class Util
         return trim($billingAddress->getFirstName() . ' ' . $billingAddress->getLastName());
     }
 
+    /**
+     * @return Stripe\Account The stripe account for the used secret key
+     */
     public static function getAccount()
     {
         self::initStripeAPI();

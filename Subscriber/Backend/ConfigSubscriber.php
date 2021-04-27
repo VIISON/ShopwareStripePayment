@@ -35,7 +35,13 @@ class ConfigSubscriber implements SubscriberInterface
         $subject = $args->getSubject();
         $data = $subject->Request()->getParam('elements');
 
-        if ($data[0]['name'] !== 'stripeSecretKey' && $data[0]['value'] === '') {
+        if ($data[0]['name'] !== 'stripeSecretKey') {
+            return;
+        }
+
+        $secretKey  = Util::stripeSecretKey();
+
+        if ($secretKey === '') {
             return;
         }
 
