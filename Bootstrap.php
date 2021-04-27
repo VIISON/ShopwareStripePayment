@@ -338,12 +338,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
             case '5.3.3':
                 // Nothing to do
             case '5.3.4':
-                // Check for a saved default grid label template
-                $configValue = $this->get('models')->getRepository('Shopware\\Models\\Config\\Element')->findOneBy([
-                    'name' => 'stripeAccountCountryIso',
-                ]);
-
-                if (Util::getConfigValue('stripeAccountCountryIso')) {
+                if (!Util::getConfigValue('stripeAccountCountryIso')) {
                     $defaultShopLocale = $this->get('db')->fetchOne(
                         'SELECT locale FROM s_core_locales l JOIN s_core_shops s ON s.locale_id = l.id WHERE s.default = 1'
                     );
