@@ -273,7 +273,7 @@ class Util
     /**
      * @return Stripe\Account The stripe account for the used secret key
      */
-    public static function getAccount()
+    public static function getStripeAccount()
     {
         self::initStripeAPI();
 

@@ -26,7 +26,7 @@ class ConfigSubscriber implements SubscriberInterface
     }
 
     /**
-     * Handle the retriving of the stripe account country and saving it to a hidden config value
+     * Handle the retrieving of the stripe account country and saving it to a hidden config value
      *
      * @param \Enlight_Hook_HookArgs $args
      */
@@ -34,17 +34,15 @@ class ConfigSubscriber implements SubscriberInterface
     {
         $subject = $args->getSubject();
         $data = $subject->Request()->getParam('elements');
-
         if ($data[0]['name'] !== 'stripeSecretKey') {
             return;
         }
 
-        $secretKey  = Util::stripeSecretKey();
-
+        $secretKey = Util::stripeSecretKey();
         if ($secretKey === '') {
             return;
         }
 
-        Util::setConfigValue('stripeAccountCountryIso', 'string', Util::getAccount()->country);
+        Util::setConfigValue('stripeAccountCountryIso', 'string', Util::getStripeAccount()->country);
     }
 }

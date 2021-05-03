@@ -10,7 +10,6 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 }
 
 use Shopware\Models\Config\Element;
-use Shopware\Models\Config\Form;
 use Shopware\Models\Payment\Payment as PaymentMethod;
 use Shopware\Plugins\StripePayment\Classes\ConfigFormInstallationHelper;
 use Shopware\Plugins\StripePayment\Classes\SmartyPlugins;
@@ -340,9 +339,11 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
             case '5.3.4':
                 if (!Util::getConfigValue('stripeAccountCountryIso')) {
                     $defaultShopLocale = $this->get('db')->fetchOne(
-                        'SELECT locale FROM s_core_locales l JOIN s_core_shops s ON s.locale_id = l.id WHERE s.default = 1'
+                        'SELECT locale.locale
+                        FROM s_core_locales locale
+                        JOIN s_core_shops shop ON shop.locale_id = locale.id
+                        WHERE shop.default = 1'
                     );
-
                     $countryISO = explode('_', $defaultShopLocale)[1];
 
                     Util::setConfigValue('stripeAccountCountryIso', 'string', $countryISO);

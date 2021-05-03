@@ -2,7 +2,7 @@
 
 ### en
 
-* Fixes a bug that prevented payments with digital wallets (Apple Pay, Google Pay, ...) if the country of the customer and the country of the configured Stripe account differed.
+* Fixes a bug that prevented payments with digital wallets (Apple Pay, Google Pay, ...) if the country of the customer and the country of the configured Stripe account differ.
     * For this purpose, the country of the Stripe account holder is automatically loaded from the account. For this, the plugin configuration must be saved again.
 
 ### de
