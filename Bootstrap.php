@@ -379,6 +379,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                 'backend',
                 'frontend',
                 'config',
+                'proxy',
             ],
         ];
     }

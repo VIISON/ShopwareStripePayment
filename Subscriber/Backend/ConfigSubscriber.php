@@ -8,9 +8,6 @@
 namespace Shopware\Plugins\StripePayment\Subscriber\Backend;
 
 use Enlight\Event\SubscriberInterface;
-use Shopware\Components\Model\ModelManager;
-use Shopware\Models\Config\Element;
-use Shopware\Models\Config\Form;
 use Shopware\Plugins\StripePayment\Util;
 
 class ConfigSubscriber implements SubscriberInterface
@@ -33,8 +30,8 @@ class ConfigSubscriber implements SubscriberInterface
     public function onAfterSaveFormAction(\Enlight_Hook_HookArgs $args)
     {
         $subject = $args->getSubject();
-        $data = $subject->Request()->getParam('elements');
-        if ($data[0]['name'] !== 'stripeSecretKey') {
+        $isStripePaymentConfig = $subject->Request()->getParam('name') === 'StripePayment';
+        if (!$isStripePaymentConfig) {
             return;
         }
 
