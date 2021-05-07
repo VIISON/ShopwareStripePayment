@@ -8,6 +8,8 @@
 namespace Shopware\Plugins\StripePayment;
 
 use Shopware\Models\Attribute\Customer as CustomerAttribute;
+use Shopware\Models\Config\Element;
+use Shopware\Models\Config\Form;
 use Shopware\Models\Customer\Customer;
 use Stripe;
 
@@ -269,6 +271,16 @@ class Util
     }
 
     /**
+     * @return Stripe\Account The stripe account for the used secret key
+     */
+    public static function getStripeAccount()
+    {
+        self::initStripeAPI();
+
+        return Stripe\Account::retrieve();
+    }
+
+    /**
      * Decodes the requests's JSON body and tries to retrieve the Stripe event whose
      * ID is contained in the request.
      *
@@ -307,5 +319,65 @@ class Util
     public static function resetStripeSession()
     {
         Shopware()->Container()->get('session')->stripePayment = new \ArrayObject([], \ArrayObject::STD_PROP_LIST);
+    }
+
+    /**
+     * Set a hidden config value.
+     *
+     * @param string $name
+     * @param string $type
+     * @param mixed $value
+     */
+    public static function setConfigValue($name, $type, $value)
+    {
+        // Check for a saved default grid label template
+        $configValue = Shopware()->Models()->getRepository('Shopware\\Models\\Config\\Element')->findOneBy([
+            'name' => $name,
+        ]);
+
+        if (!$configValue) {
+            // Create new config element using a fake form, since all elements must belong to a form
+            $configValue = new Element($type, $name, []);
+            /** @var Form $fakeForm */
+            $fakeForm = Shopware()->Models()->getPartialReference('Shopware\\Models\\Config\\Form', 0);
+            $configValue->setForm($fakeForm);
+            Shopware()->Models()->persist($configValue);
+        }
+
+        // Save the value
+        $configValue->setValue($value);
+        Shopware()->Models()->flush($configValue);
+    }
+
+    /**
+     * Returns the current hidden config value.
+     *
+     * @param string $name
+     * @return mixed
+     */
+    public static function getConfigValue($name)
+    {
+        $configValue = Shopware()->Models()->getRepository('Shopware\\Models\\Config\\Element')->findOneBy([
+            'name' => $name,
+        ]);
+
+        return ($configValue) ? $configValue->getValue() : null;
+    }
+
+    /**
+     * Clears a config value.
+     *
+     * @param string $name
+     */
+    public static function removeConfigValue($name)
+    {
+        $configValue = Shopware()->Models()->getRepository('Shopware\\Models\\Config\\Element')->findOneBy([
+            'name' => $name,
+        ]);
+
+        if ($configValue) {
+            Shopware()->Models()->remove($configValue);
+            Shopware()->Models()->flush($configValue);
+        }
     }
 }
