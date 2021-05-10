@@ -12,6 +12,7 @@
     * Das Land des Stripe Accountinhabers wird hierfür automatisch aus dem Account geladen. Hierfür muss die Pluginkonfiguration neu gespeichert werden.
 * Behebt einen Fehler, der dazu führte, dass nicht gespeicherte Kreditkarten bei einem fehlerhaften Bestellabschluss weiterhin angezeigt wurden.
 
+
 ## 5.3.4
 
 ### en
