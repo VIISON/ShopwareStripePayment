@@ -100,6 +100,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
         $clientSecret = $this->Request()->getParam('payment_intent_client_secret');
         if (!$clientSecret || $clientSecret !== Util::getStripeSession()->redirectClientSecret) {
             $message = $this->getStripePaymentMethod()->getSnippet('payment_error/message/redirect/internal_error');
+            Util::removeNotSavedCardFromSession();
             $this->cancelCheckout($message);
 
             return;
@@ -110,6 +111,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
         $paymentIntent = Stripe\PaymentIntent::retrieve($paymentIntentId);
         if (!$paymentIntent) {
             $message = $this->getStripePaymentMethod()->getSnippet('payment_error/message/redirect/internal_error');
+            Util::removeNotSavedCardFromSession();
             $this->cancelCheckout($message);
 
             return;
@@ -119,6 +121,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
             if ($paymentIntent->last_payment_error && $paymentIntent->last_payment_error->code) {
                 $message = ($this->getStripePaymentMethod()->getSnippet('error/' . $paymentIntent->last_payment_error->code)) ?: $message;
             }
+            Util::removeNotSavedCardFromSession();
             $this->cancelCheckout($message);
 
             return;
@@ -129,6 +132,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
             $order = $this->saveOrderWithPaymentIntent($paymentIntent);
         } catch (Exception $e) {
             $message = $this->getStripePaymentMethod()->getErrorMessage($e);
+            Util::removeNotSavedCardFromSession();
             $this->cancelCheckout($message);
 
             return;
