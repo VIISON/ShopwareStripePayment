@@ -48,6 +48,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
         if ($paymentIntent->status === 'requires_action') {
             if (!$paymentIntent->next_action || $paymentIntent->next_action->type !== 'redirect_to_url') {
                 $message = $this->getStripePaymentMethod()->getSnippet('payment_error/message/redirect/failed');
+                Util::removeNotSavedCardFromSession();
                 $this->cancelCheckout($message);
 
                 return;
@@ -73,6 +74,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
                     ]
                 );
                 $message = $this->getStripePaymentMethod()->getErrorMessage($e);
+                Util::removeNotSavedCardFromSession();
                 $this->cancelCheckout($message);
 
                 return;
@@ -82,6 +84,7 @@ class Shopware_Controllers_Frontend_StripePaymentIntent extends Shopware_Control
         } else {
             // Unable to process payment
             $message = $this->getStripePaymentMethod()->getSnippet('payment_error/message/source_declined');
+            Util::removeNotSavedCardFromSession();
             $this->cancelCheckout($message);
         }
     }
