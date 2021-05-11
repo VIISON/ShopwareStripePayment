@@ -71,6 +71,7 @@ trait StripeCheckout
             $prefix = $this->get('snippets')->getNamespace('frontend/plugins/payment/stripe_payment/base')->get('payment_error/message/charge_failed');
             Util::getStripeSession()->paymentError = $prefix . ' ' . $errorMessage;
         }
+        Util::removeUnsavedSelectedCardFromSession();
         $this->redirect([
             'controller' => 'checkout',
             'action' => 'index',
