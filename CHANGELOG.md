@@ -4,11 +4,13 @@
 
 * Fixes a bug that prevented payments with digital wallets (Apple Pay, Google Pay, ...) if the country of the customer and the country of the configured Stripe account differ.
     * For this purpose, the country of the Stripe account holder is automatically loaded from the account. For this, the plugin configuration must be saved again.
+* Fixes a bug that caused unsaved credit cards to continue to be displayed after a failed order completion.
 
 ### de
 
 * Behebt einen Fehler, der dazu führte, dass Zahlungen mit Digital Wallets (Apple Pay, Google Pay, ...) nicht funktionierten, wenn sich das Land des Kunden und das des hinterlegten Stripe-Accounts unterscheiden.
     * Das Land des Stripe Accountinhabers wird hierfür automatisch aus dem Account geladen. Hierfür muss die Pluginkonfiguration neu gespeichert werden.
+* Behebt einen Fehler, der dazu führte, dass nicht gespeicherte Kreditkarten nach einem fehlgeschlagenen Bestellabschluss weiterhin angezeigt wurden.
 
 
 ## 5.3.4

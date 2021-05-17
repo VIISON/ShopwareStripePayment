@@ -322,6 +322,21 @@ class Util
     }
 
     /**
+     * Removes Cards that are not saved for future checkouts from the session.
+     */
+    public static function removeUnsavedSelectedCardFromSession()
+    {
+        $session = Shopware()->Container()->get('session')->stripePayment;
+
+        $hasSaveCardForFutureCheckouts = array_key_exists('saveCardForFutureCheckouts', $session);
+
+        if ($hasSaveCardForFutureCheckouts && !$session->saveCardForFutureCheckouts) {
+            unset($session->selectedCard);
+            unset($session->saveCardForFutureCheckouts);
+        }
+    }
+
+    /**
      * Set a hidden config value.
      *
      * @param string $name
