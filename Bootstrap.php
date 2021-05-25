@@ -348,6 +348,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
 
                     Util::setConfigValue('stripeAccountCountryIso', 'string', $countryISO);
                 }
+            case '5.3.5':
                 // Next release
 
                 break;
