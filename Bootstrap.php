@@ -14,6 +14,7 @@ use Shopware\Models\Payment\Payment as PaymentMethod;
 use Shopware\Plugins\StripePayment\Classes\ConfigFormInstallationHelper;
 use Shopware\Plugins\StripePayment\Classes\SmartyPlugins;
 use Shopware\Plugins\StripePayment\Subscriber;
+use Shopware\Plugins\StripePayment\Util;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -334,6 +335,20 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
             case '5.3.2':
                 // Nothing to do
             case '5.3.3':
+                // Nothing to do
+            case '5.3.4':
+                if (!Util::getConfigValue('stripeAccountCountryIso')) {
+                    $defaultShopLocale = $this->get('db')->fetchOne(
+                        'SELECT locale.locale
+                        FROM s_core_locales locale
+                        JOIN s_core_shops shop ON shop.locale_id = locale.id
+                        WHERE shop.default = 1'
+                    );
+                    $countryISO = explode('_', $defaultShopLocale)[1];
+
+                    Util::setConfigValue('stripeAccountCountryIso', 'string', $countryISO);
+                }
+            case '5.3.5':
                 // Next release
 
                 break;
@@ -365,6 +380,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
                 'backend',
                 'frontend',
                 'config',
+                'proxy',
             ],
         ];
     }
@@ -384,6 +400,8 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
             's_user_attributes'
         ]);
 
+        Util::removeConfigValue('stripeAccountCountryIso');
+
         return true;
     }
 
@@ -395,6 +413,7 @@ class Shopware_Plugins_Frontend_StripePayment_Bootstrap extends Shopware_Compone
         $this->get('events')->addSubscriber(new Subscriber\Payment());
         $this->get('events')->addSubscriber(new Subscriber\Backend\Index($this));
         $this->get('events')->addSubscriber(new Subscriber\Backend\Order($this));
+        $this->get('events')->addSubscriber(new Subscriber\Backend\ConfigSubscriber());
         $this->get('events')->addSubscriber(new Subscriber\Controllers($this));
         $this->get('events')->addSubscriber(new Subscriber\Frontend\Account($this));
         $this->get('events')->addSubscriber(new Subscriber\Frontend\Checkout($this));
