@@ -1,3 +1,14 @@
+## next_minor_release
+
+### en
+
+* Enables compatibility with Shopware 5.7.
+
+### de
+
+* Stellt die Kompatibilität mit Shopware 5.7 her.
+
+
 ## 5.3.5
 
 ### en
