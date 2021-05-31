@@ -14,42 +14,42 @@
             {* IBAN *}
             <div class="panel--tr stripe-sepa-field">
                 <label>
-                    <span class="panel--td">{s namespace=frontend/plugins/payment/stripe_payment/sepa name=form/iban}{/s} *</span>
+                    <span class="panel--td">{s namespace="frontend/plugins/payment/stripe_payment/sepa" name="form/iban"}{/s} *</span>
                     <div class="stripe-element-sepa-iban panel--td"><!-- Stripe element is inserted here --></div>
                 </label>
             </div>
             {* Account owner *}
             <div class="panel--tr stripe-sepa-field">
                 <label>
-                    <span class="panel--td">{s namespace=frontend/plugins/payment/stripe_payment/sepa name=form/account_owner}{/s} *</span>
+                    <span class="panel--td">{s namespace="frontend/plugins/payment/stripe_payment/sepa" name="form/account_owner"}{/s} *</span>
                     <input type="text" class="stripe-sepa-account-owner panel--td is--required" name="account_owner" required="required" value="{$sUserData.billingaddress.firstname|escape:"htmlall"} {$sUserData.billingaddress.lastname|escape:"htmlall"}">
                 </label>
             </div>
             {* Street *}
             <div class="panel--tr stripe-sepa-field">
                 <label>
-                    <span class="panel--td">{s namespace=frontend/plugins/payment/stripe_payment/sepa name=form/street}{/s} *</span>
+                    <span class="panel--td">{s namespace="frontend/plugins/payment/stripe_payment/sepa" name="form/street"}{/s} *</span>
                     <input type="text" class="stripe-sepa-street panel--td is--required" name="street" required="required" value="{$sUserData.billingaddress.street|escape:"htmlall"}{if $sUserData.billingaddress.streetnumber} {$sUserData.billingaddress.streetnumber|escape:"htmlall"}{/if}">
                 </label>
             </div>
             {* ZIP code *}
             <div class="panel--tr stripe-sepa-field">
                 <label>
-                    <span class="panel--td">{s namespace=frontend/plugins/payment/stripe_payment/sepa name=form/zip_code}{/s} *</span>
+                    <span class="panel--td">{s namespace="frontend/plugins/payment/stripe_payment/sepa" name="form/zip_code"}{/s} *</span>
                     <input type="text" class="stripe-sepa-zip-code panel--td is--required" name="zip_code" required="required" value="{$sUserData.billingaddress.zipcode|escape:"htmlall"}">
                 </label>
             </div>
             {* City *}
             <div class="panel--tr stripe-sepa-field">
                 <label>
-                    <span class="panel--td">{s namespace=frontend/plugins/payment/stripe_payment/sepa name=form/city}{/s} *</span>
+                    <span class="panel--td">{s namespace="frontend/plugins/payment/stripe_payment/sepa" name="form/city"}{/s} *</span>
                     <input type="text" class="stripe-sepa-city panel--td is--required" name="city" required="required" value="{$sUserData.billingaddress.city|escape:"htmlall"}">
                 </label>
             </div>
             {* Country *}
             <div class="panel--tr stripe-sepa-field country-selection">
                 <label>
-                    <span class="panel--td">{s namespace=frontend/plugins/payment/stripe_payment/sepa name=form/country}{/s} *</span>
+                    <span class="panel--td">{s namespace="frontend/plugins/payment/stripe_payment/sepa" name="form/country"}{/s} *</span>
                     <div class="select-field">
                         <select class="stripe-sepa-country panel--td is--required" name="country" required="required">
                             {foreach $stripePayment.sepaCountryList as $country}
@@ -78,7 +78,7 @@
             </div>
             <div class="alert--content">
                 {capture name=stripePaymentSepaMandateInfo}
-                    {s namespace=frontend/plugins/payment/stripe_payment/sepa name=form/mandate_info}{/s}
+                    {s namespace="frontend/plugins/payment/stripe_payment/sepa" name="form/mandate_info"}{/s}
                 {/capture}
                 {$smarty.capture.stripePaymentSepaMandateInfo|replace:"[creditor]":$stripePayment.sepaCreditor}
             </div>
@@ -86,7 +86,7 @@
 
         {* Info *}
         <div class="description">
-            {s namespace=frontend/plugins/payment/stripe_payment/sepa name=form/description}{/s}
+            {s namespace="frontend/plugins/payment/stripe_payment/sepa" name="form/description"}{/s}
         </div>
     </div>
 {/if}

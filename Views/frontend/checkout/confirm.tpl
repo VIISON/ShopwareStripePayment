@@ -58,13 +58,13 @@
                 var stripePublicKey = '{$stripePayment.publicKey|escape:"javascript"}';
                 var stripePaymentSnippets = {
                     error: {
-                        connectionNotSecure: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallets name=error/connection_not_secure}{/stripe_snippet}',
-                        invalidConfig: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallets name=error/invalid_config}{/stripe_snippet}',
-                        notAvailable: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallets name=error/not_available}{/stripe_snippet}',
-                        paymentCancelled: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallets name=error/payment_cancelled}{/stripe_snippet}',
-                        title: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallets name=error/title}{/stripe_snippet}',
+                        connectionNotSecure: '{stripe_snippet namespace="frontend/plugins/payment/stripe_payment/digital_wallets" name="error/connection_not_secure"}{/stripe_snippet}',
+                        invalidConfig: '{stripe_snippet namespace="frontend/plugins/payment/stripe_payment/digital_wallets" name="error/invalid_config"}{/stripe_snippet}',
+                        notAvailable: '{stripe_snippet namespace="frontend/plugins/payment/stripe_payment/digital_wallets" name="error/not_available"}{/stripe_snippet}',
+                        paymentCancelled: '{stripe_snippet namespace="frontend/plugins/payment/stripe_payment/digital_wallets" name="error/payment_cancelled"}{/stripe_snippet}',
+                        title: '{stripe_snippet namespace="frontend/plugins/payment/stripe_payment/digital_wallets" name="error/title"}{/stripe_snippet}',
                     },
-                    shippingCost: '{stripe_snippet namespace=frontend/plugins/payment/stripe_payment/digital_wallets name=shipping_cost}{/stripe_snippet}',
+                    shippingCost: '{stripe_snippet namespace="frontend/plugins/payment/stripe_payment/digital_wallets" name=shipping_cost}{/stripe_snippet}',
                 };
                 var paymentMethod = '{$sUserData.additional.payment.name|escape:"javascript"}'.replace('stripe_payment_', '');
                 var paymentMethodName = '';

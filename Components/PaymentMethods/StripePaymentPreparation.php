@@ -36,8 +36,8 @@ trait StripePaymentPreparation
     public function getErrorMessage(\Exception $exception)
     {
         $message = 'Payment failed: ' . $exception->getMessage();
-        if ($exception->stripeCode) {
-            $message = ($this->getSnippet('payment_error/message/' . $exception->stripeCode)) ?: $message;
+        if (method_exists($exception, 'getStripeCode') && $exception->getStripeCode()) {
+            $message = ($this->getSnippet('payment_error/message/' . $exception->getStripeCode())) ?: $message;
         }
 
         return $message;
@@ -128,7 +128,7 @@ trait StripePaymentPreparation
     {
         return [
             'platform_name' => Util::STRIPE_PLATFORM_NAME,
-            'shopware_session_id' => $this->get('SessionID'),
+            'shopware_session_id' => $this->get('sessionid'),
         ];
     }
 

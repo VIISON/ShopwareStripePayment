@@ -15,7 +15,7 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.position.refund.Window
     extend: 'Ext.window.Window',
 
     alias: 'widget.stripe-payment-refund-window',
-    title: '{s name=order/view/detail/position/refund/window/title}{/s}',
+    title: '{s name="order/view/detail/position/refund/window/title"}{/s}',
     modal: true,
     height: 440,
     width: 800,
@@ -27,7 +27,7 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.position.refund.Window
     initComponent: function() {
         // Create a new loadmask
         this.loadMask = new Ext.LoadMask(this, {
-            msg: '{s name=order/view/detail/position/refund/window/load_mask}{/s}',
+            msg: '{s name="order/view/detail/position/refund/window/load_mask"}{/s}',
         });
         this.loadMask.hide();
 
@@ -78,17 +78,17 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.position.refund.Window
             },
             columns: [{
                 xtype: 'gridcolumn',
-                header: '{s name=order/view/detail/position/refund/window/grid/column/article_numer}{/s}',
+                header: '{s name="order/view/detail/position/refund/window/grid/column/article_numer"}{/s}',
                 dataIndex: 'articleNumber',
                 flex: 2
             }, {
                 xtype: 'gridcolumn',
-                header: '{s name=order/view/detail/position/refund/window/grid/column/article_name}{/s}',
+                header: '{s name="order/view/detail/position/refund/window/grid/column/article_name"}{/s}',
                 dataIndex: 'articleName',
                 flex: 4
             }, {
                 xtype: 'gridcolumn',
-                header: '{s name=order/view/detail/position/refund/window/grid/column/quantity}{/s}',
+                header: '{s name="order/view/detail/position/refund/window/grid/column/quantity"}{/s}',
                 dataIndex: 'quantity',
                 flex: 1,
                 editor: {
@@ -100,7 +100,7 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.position.refund.Window
                 }
             }, {
                 xtype: 'gridcolumn',
-                header: '{s name=order/view/detail/position/refund/window/grid/column/price}{/s}',
+                header: '{s name="order/view/detail/position/refund/window/grid/column/price"}{/s}',
                 dataIndex: 'price',
                 align: 'right',
                 flex: 1,
@@ -109,7 +109,7 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.position.refund.Window
                 }
             }, {
                 xtype: 'gridcolumn',
-                header: '{s name=order/view/detail/position/refund/window/grid/column/total}{/s}',
+                header: '{s name="order/view/detail/position/refund/window/grid/column/total"}{/s}',
                 dataIndex: 'total',
                 align: 'right',
                 flex: 1,
@@ -147,12 +147,12 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.position.refund.Window
             items: [
                 {
                     xtype: 'displayfield',
-                    fieldLabel: '{s name=order/view/detail/position/refund/window/form/total_amount}{/s}',
+                    fieldLabel: '{s name="order/view/detail/position/refund/window/form/total_amount"}{/s}',
                     name: 'total',
                     value: Ext.util.Format.currency(this.total, ' &euro;', 2, true)
                 }, {
                     xtype: 'textfield',
-                    fieldLabel: '{s name=order/view/detail/position/refund/window/form/comment}{/s}',
+                    fieldLabel: '{s name="order/view/detail/position/refund/window/form/comment"}{/s}',
                     name: 'comment',
                     width: '100%'
                 }
@@ -176,7 +176,7 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.position.refund.Window
                     flex: 1
                 }, {
                     xtype: 'button',
-                    text: '{s name=order/view/detail/position/refund/window/cancel_button}{/s}',
+                    text: '{s name="order/view/detail/position/refund/window/cancel_button"}{/s}',
                     cls: 'secondary',
                     scope: this,
                     handler: function() {
@@ -184,7 +184,7 @@ Ext.define('Shopware.apps.StripePayment.Order.view.detail.position.refund.Window
                     }
                 }, {
                     xtype: 'button',
-                    text: '{s name=order/view/detail/position/refund/window/confirm_button}{/s}',
+                    text: '{s name="order/view/detail/position/refund/window/confirm_button"}{/s}',
                     cls: 'primary',
                     scope: this,
                     handler: function() {

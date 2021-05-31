@@ -2,7 +2,7 @@
     {if !$stripeErrorTitle}
         {* Load the payment error title from the snippets *}
         {capture name="stripeErrorTitleCapture"}
-            {s namespace=frontend/plugins/payment/stripe_payment/base name=payment_error/title}{/s}
+            {s namespace="frontend/plugins/payment/stripe_payment/base" name="payment_error/title"}{/s}
         {/capture}
         {assign var="stripeErrorTitle" value=$smarty.capture.stripeErrorTitleCapture}
     {/if}
